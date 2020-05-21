@@ -1,0 +1,121 @@
+.card {
+  max-width: 300px;
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
+  /* TODO: remove these ^^^ */
+
+  min-width: 300px;
+
+  border-style: solid;
+  border-radius: 3px;
+  border-width: 1px;
+  border-color: var(--color-gray-5);
+
+  font-family: Roboto;
+  background-color: var(--color-background);
+}
+
+.content {
+  padding: 8px 16px;
+}
+
+.header {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.title {
+  justify-self: left;
+
+  font-size: 18px;
+  font-weight: medium;
+  color: var(--color-gray-2);
+}
+
+.role {
+  color: var(--color-gray-2);
+}
+
+.at {
+  color: var(--color-gray-4);
+}
+
+.company {
+  color: var(--color-blue);
+}
+
+.icon {
+  justify-self: right;
+  width: 20px;
+  height: 20px;
+}
+
+.icon svg {
+  fill: var(--color-blue);
+}
+
+.body {
+  margin-top: 8px;
+
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 20px;
+  color: var(--color-gray-3);
+}
+
+.bullets {
+  /* list-style: square inside url("../public/bullet.svg"); */
+  list-style-type: none;
+  /* list-style-type: circle;
+  list-style-position: inside; */
+  margin-block-start: 0;
+  margin-block-end: 0;
+  padding-inline-start: 0;
+}
+
+.bullet:not(:last-child) {
+  /* text-indent: -10px; */
+  margin-bottom: 12px;
+}
+
+.arrow_container {
+  display: grid;
+}
+
+.arrow {
+  justify-self: right;
+  color: var(--color-blue);
+}
+
+.line {
+  margin-block-start: 16px;
+  margin-block-end: 10px;
+  border-style: solid;
+  border-color: var(--color-gray-5);
+  border-width: 0.5px;
+}
+
+.footer {
+  display: grid;
+  grid-template-columns: auto auto;
+
+  font-size: 11px;
+  font-weight: medium;
+}
+
+.bottom_left {
+  justify-self: left;
+  color: var(--color-orange);
+}
+
+.lang {
+  margin-right: 12px;
+}
+
+.bottom_right {
+  justify-self: right;
+  color: var(--color-gray-4);
+}
+
+.tool {
+  margin-left: 12px;
+}

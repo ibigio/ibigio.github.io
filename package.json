@@ -1,12 +1,12 @@
 {
-  "name": "gh-pages",
+  "name": "ibigio.github.io",
   "version": "1.0.0",
   "scripts": {
     "dev": "next",
     "build": "next build",
     "start": "next start",
     "export": "next export",
-    "deploy": "rm -rf node_modules/.cache && next build && next export && touch out/.nojekyll && git add out/ && git commit -m \"Deploy Next.js to master\" && git subtree push --prefix out origin master"
+    "deploy": "rm -rf node_modules/.cache && next build && next export && touch out/.nojekyll && cp CNAME out/ && git add out/ && git commit -m \"Deploy Next.js to master\" && git subtree push --prefix out origin master"
   },
   "dependencies": {
     "next": "latest",
