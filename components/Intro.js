@@ -7,9 +7,9 @@ export default function Intro() {
     <div className={styles.container}>
       <img className={styles.profile} src="/images/profile.png" />
       <div className={styles.intro_text}>
-        <div className={styles.title}>
+        <h2>
           Hi, I'm <span className={styles.blue}>Ilan</span>.
-        </div>
+        </h2>
         <div className={styles.subtitle}>ilanbigio@gmail.com</div>
         <div className={styles.body}>
           I studied computer science at {orange("Brown University")}, and will

@@ -1,3 +1,13 @@
+:root {
+  --color-background: white;
+  --color-gray-2: #4f4f4f;
+  --color-gray-3: #828282;
+  --color-gray-4: #bdbdbd;
+  --color-gray-5: #e0e0e0;
+  --color-blue: #2f80ed;
+  --color-orange: #f2994a;
+}
+
 html,
 body {
   padding: 0;
@@ -6,6 +16,24 @@ body {
   font-family: Roboto;
   font-weight: regular;
   color: var(--color-gray-2);
+}
+
+h1,
+h2,
+h3 {
+  font-family: Roboto;
+  font-weight: bold;
+  margin: 0;
+}
+
+h2 {
+  font-family: Noto Sans;
+  font-weight: bold;
+  font-size: 36px;
+}
+
+section {
+  padding: 0 24px 0 24px;
 }
 
 @font-face {
@@ -22,18 +50,14 @@ body {
 
 @font-face {
   font-family: Noto Sans;
-  src: url("../fonts/Noto_Sans/NotoSans-Bold.ttf") format("truetype");
-  font-weight: Bold;
+  src: url("../fonts/Noto_Sans/NotoSans-Regular.ttf") format("truetype");
+  font-weight: regular;
 }
 
-:root {
-  --color-background: white;
-  --color-gray-2: #4f4f4f;
-  --color-gray-3: #828282;
-  --color-gray-4: #bdbdbd;
-  --color-gray-5: #e0e0e0;
-  --color-blue: #2f80ed;
-  --color-orange: #f2994a;
+@font-face {
+  font-family: Noto Sans;
+  src: url("../fonts/Noto_Sans/NotoSans-Bold.ttf") format("truetype");
+  font-weight: Bold;
 }
 
 /* html,

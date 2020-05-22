@@ -21,8 +21,9 @@
 }
 
 .logo {
-  width: 30px;
+  width: 23px;
   height: auto;
+  align-self: center;
 }
 
 .right {

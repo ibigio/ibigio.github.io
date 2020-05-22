@@ -4,6 +4,7 @@
   padding-top: 150px;
 }
 
-.section_content {
-  padding: 0 24px 0 24px;
+.dark_section {
+  padding-top: 160px;
+  background-color: var(--color-gray-2);
 }

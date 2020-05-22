@@ -5,7 +5,7 @@ export default function Navbar() {
     <div className={styles.container}>
       <div className={styles.content}>
         <div className={styles.left}>
-          <img className={styles.logo} src="/twitter-copy.svg" />
+          <img className={styles.logo} src="/logo.svg" />
         </div>
         <div className={styles.right}>
           <div className={styles.sections}>
