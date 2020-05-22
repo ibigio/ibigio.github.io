@@ -1,6 +1,8 @@
 import ProjectCard from "../components/ProjectCard";
 import ExperienceCard from "../components/ExperienceCard";
+import Intro from "../components/Intro";
 import Head from "next/head";
+import styles from "../styles/home.module.css";
 
 const title = "Deterministic Minesweeper";
 const iconPath = "/twitter-new.svg";
@@ -22,21 +24,28 @@ const location = "San Francisco, CA";
 export default function Home() {
   return (
     <>
-      <ProjectCard
-        title={title}
-        iconPath={iconPath}
-        body={body}
-        langs={langs}
-        tools={tools}
-      />
-      <ExperienceCard
-        role={role}
-        company={company}
-        iconPath={iconPath}
-        bullets={bullets}
-        date={date}
-        location={location}
-      />
+      <section className={styles.intro_section}>
+        <div className={styles.section_content}>
+          <Intro />
+        </div>
+      </section>
+      <div className={styles.main_container}>
+        <ProjectCard
+          title={title}
+          iconPath={iconPath}
+          body={body}
+          langs={langs}
+          tools={tools}
+        />
+        <ExperienceCard
+          role={role}
+          company={company}
+          iconPath={iconPath}
+          bullets={bullets}
+          date={date}
+          location={location}
+        />
+      </div>
     </>
     // <Layout home>
     //   <Head>

@@ -1,0 +1,9 @@
+.intro_section {
+  -webkit-box-sizing: border-box;
+  height: 100vh;
+  padding-top: 150px;
+}
+
+.section_content {
+  padding: 0 24px 0 24px;
+}

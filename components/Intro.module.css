@@ -1,0 +1,44 @@
+.container {
+  display: grid;
+  grid-template-columns: auto auto;
+  max-width: 780px;
+
+  margin: 0 auto 0;
+}
+
+.profile {
+  height: 200px;
+  width: auto;
+}
+
+.intro_text {
+  align-self: center;
+  margin-left: 30px;
+
+  font-family: Roboto;
+  font-weight: regular;
+  color: var(--color-gray-2);
+}
+
+.title {
+  font-family: Noto Sans;
+  font-weight: bold;
+  font-size: 36px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--color-gray-4);
+}
+
+.body {
+  margin-top: 30px;
+}
+
+.orange {
+  color: var(--color-orange);
+}
+
+.blue {
+  color: var(--color-blue);
+}

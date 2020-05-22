@@ -25,7 +25,9 @@ export default function ExperienceCard({
         <div className={styles.body}>
           <ul className={styles.bullets}>
             {bullets.map((e) => (
-              <li className={styles.bullet}>{e}</li>
+              <li className={styles.bullet} key={e}>
+                {e}
+              </li>
             ))}
           </ul>
         </div>
