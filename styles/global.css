@@ -2,6 +2,10 @@ html,
 body {
   padding: 0;
   margin: 0;
+
+  font-family: Roboto;
+  font-weight: regular;
+  color: var(--color-gray-2);
 }
 
 @font-face {

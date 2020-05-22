@@ -1,0 +1,51 @@
+.container {
+  background-color: var(--color-background);
+  position: fixed;
+  -webkit-box-sizing: border-box;
+  width: 100vw;
+  padding: 0 24px 0 24px;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: auto auto;
+
+  height: 60px;
+  max-width: 940px;
+  margin: 0 auto 0;
+}
+
+.left {
+  justify-self: left;
+  align-self: center;
+}
+
+.logo {
+  width: 30px;
+  height: auto;
+}
+
+.right {
+  justify-self: right;
+  align-self: center;
+
+  display: grid;
+  grid-template-columns: auto auto;
+
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.sections {
+  align-self: center;
+}
+
+.section {
+  margin-left: 24px;
+}
+
+.github_icon {
+  width: 20px;
+  height: auto;
+  margin-left: 24px;
+}

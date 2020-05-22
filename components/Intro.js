@@ -1,4 +1,4 @@
-import styles from "./Intro.module.css";
+import styles from "../styles/Intro.module.css";
 
 const orange = (text) => <span className={styles.orange}>{text}</span>;
 

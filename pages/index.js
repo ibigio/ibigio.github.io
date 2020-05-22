@@ -1,11 +1,12 @@
 import ProjectCard from "../components/ProjectCard";
 import ExperienceCard from "../components/ExperienceCard";
+import Navbar from "../components/Navbar";
 import Intro from "../components/Intro";
 import Head from "next/head";
 import styles from "../styles/home.module.css";
 
 const title = "Deterministic Minesweeper";
-const iconPath = "/twitter-new.svg";
+const iconPath = "/twitter-copy.svg";
 const body =
   "A version of Minesweeper where every game you play is guaranteed to require no guessing. Achieved through algorithmic solving.";
 const langs = ["Python", "JS"];
@@ -24,6 +25,7 @@ const location = "San Francisco, CA";
 export default function Home() {
   return (
     <>
+      <Navbar />
       <section className={styles.intro_section}>
         <div className={styles.section_content}>
           <Intro />

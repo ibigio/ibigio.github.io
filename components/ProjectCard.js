@@ -1,4 +1,4 @@
-import styles from "./Card.module.css";
+import styles from "../styles/Card.module.css";
 
 export default function ProjectCard({ title, iconPath, body, langs, tools }) {
   return (
