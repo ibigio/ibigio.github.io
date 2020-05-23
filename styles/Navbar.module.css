@@ -4,6 +4,8 @@
   -webkit-box-sizing: border-box;
   width: 100vw;
   padding: 0 24px 0 24px;
+
+  cursor: default;
 }
 
 .content {
@@ -26,6 +28,10 @@
   align-self: center;
 }
 
+.logo:hover {
+  cursor: pointer;
+}
+
 .right {
   justify-self: right;
   align-self: center;
@@ -43,6 +49,12 @@
 
 .section {
   margin-left: 24px;
+  transition: color 0.2s;
+}
+
+.section:hover {
+  color: var(--color-blue);
+  cursor: pointer;
 }
 
 .github_icon {

@@ -1,16 +1,22 @@
-.card {
-  /* max-width: 300px;
-  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05); */
-  /* TODO: remove these ^^^ */
-
+.container {
   min-width: 200px;
 
-  border-style: solid;
   border-radius: 3px;
-  border-width: 1px;
-  border-color: var(--color-gray-5);
 
   background-color: var(--color-background);
+}
+
+.selectable {
+  border-style: solid;
+  border-radius: 3px;
+  border-color: var(--color-gray-5);
+  border-width: 1px;
+  transition: border-color 0.2s;
+}
+
+.selectable:hover {
+  border-color: var(--color-blue);
+  cursor: pointer;
 }
 
 .content {
