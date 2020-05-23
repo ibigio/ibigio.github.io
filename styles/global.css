@@ -20,6 +20,11 @@ body {
   color: var(--color-gray-2);
 }
 
+p {
+  line-height: 24px;
+  font-weight: 14px;
+}
+
 h1,
 h2,
 h3 {

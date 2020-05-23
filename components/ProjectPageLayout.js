@@ -43,9 +43,9 @@ export default function Page({ children, projectData }) {
           </div>
         </div>
 
-        <main>{children}</main>
-        <div className={styles.copyright}>© 2020 Ilan Bigio</div>
+        <main className={styles.main}> {children}</main>
       </div>
+      <footer className={styles.copyright}>© 2020 Ilan Bigio</footer>
     </div>
   );
 }
