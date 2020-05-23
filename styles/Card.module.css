@@ -63,8 +63,7 @@
 }
 
 .body {
-  margin-top: 8px;
-
+  margin-top: 12px;
   font-size: 14px;
   line-height: 20px;
   color: var(--color-gray-3);
