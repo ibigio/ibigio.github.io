@@ -1,9 +1,11 @@
 .container {
   background-color: var(--color-background);
   position: fixed;
-  -webkit-box-sizing: border-box;
+  z-index: 1;
+
   width: 100vw;
   padding: 0 24px 0 24px;
+  -webkit-box-sizing: border-box;
 
   cursor: default;
 }

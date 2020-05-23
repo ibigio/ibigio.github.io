@@ -9,7 +9,7 @@ export default function ExperienceCard({
   location,
 }) {
   return (
-    <div className={styles.card}>
+    <div className={styles.container}>
       <div className={styles.content}>
         {/* Header */}
         <div className={styles.header}>
@@ -32,13 +32,13 @@ export default function ExperienceCard({
           </ul>
         </div>
 
-        <div className={styles.arrow_container}></div>
-        <hr className={styles.line} />
-
         {/* Footer */}
         <div className={styles.footer}>
-          <span className={styles.bottom_left}>{date}</span>
-          <span className={styles.bottom_right}>{location}</span>
+          <hr className={styles.line} />
+          <div className={styles.footer_text}>
+            <span className={styles.bottom_left}>{date}</span>
+            <span className={styles.bottom_right}>{location}</span>
+          </div>
         </div>
       </div>
     </div>

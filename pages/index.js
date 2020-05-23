@@ -1,15 +1,11 @@
-import ProjectCard from "../components/ProjectCard";
-import ExperienceCard from "../components/ExperienceCard";
+import styles from "../styles/home.module.css";
 import Navbar from "../components/Navbar";
 import Intro from "../components/Intro";
 import Head from "next/head";
-import styles from "../styles/home.module.css";
 import ProjectsSection from "../components/ProjectsSection";
 import ExperienceSection from "../components/ExperienceSection";
 import CopyrightSection from "../components/CopyrightSection";
-import { getProjectsData } from "../lib/projects";
-
-import projects from "../projects";
+import { getCardData } from "../lib/loading";
 
 // const title = "Deterministic Minesweeper";
 const iconPath = "/icons/twitter.svg";
@@ -49,15 +45,17 @@ const manualProjectData = [
 ];
 
 export async function getStaticProps() {
-  const projectsData = getProjectsData();
+  const projectsData = getCardData("projects");
+  const experienceData = getCardData("experience");
   return {
     props: {
       projectsData,
+      experienceData,
     },
   };
 }
 
-export default function Home({ projectsData }) {
+export default function Home({ projectsData, experienceData }) {
   return (
     <html>
       <Head>
@@ -78,11 +76,9 @@ export default function Home({ projectsData }) {
           <ProjectsSection projectsData={projectsData} />
         </section>
 
-        {/* <section name="experience" className={styles.experience_section}>
-          <ExperienceSection
-            experienceInfos={[experienceInfo, experienceInfo, experienceInfo]}
-          />
-        </section> */}
+        <section name="experience" className={styles.experience_section}>
+          <ExperienceSection experienceData={experienceData} />
+        </section>
         <section className={styles.copyright_section}>
           <CopyrightSection />
         </section>

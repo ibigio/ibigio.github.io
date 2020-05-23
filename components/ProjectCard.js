@@ -1,36 +1,47 @@
 import styles from "../styles/Card.module.css";
+import Link from "next/link";
 
-export default function ProjectCard({ title, iconPath, body, langs, tools }) {
+export default function ProjectCard(props) {
+  console.log(props);
+  const { id, title, iconPath, description, langs, tools } = props;
+  const url = "/projects/" + id;
   return (
-    <div className={styles.card}>
-      <div className={styles.content}>
-        {/* Header */}
-        <div className={styles.header}>
-          <span className={styles.title}>{title}</span>
-          <img className={styles.icon} src={iconPath} />
-        </div>
+    <div className={styles.container}>
+      <div className={styles.selectable}>
+        <Link href={url}>
+          <div className={styles.content}>
+            {/* Header */}
+            <div>
+              <div className={styles.header}>
+                <span className={styles.title}>{title}</span>
+                <img className={styles.icon} src={iconPath} />
+              </div>
 
-        {/* Body */}
-        <div className={styles.body}>{body}</div>
-
-        {/* <div className={styles.arrow_container}>
+              {/* Body */}
+              <div className={styles.body}>{description}</div>
+              {/* <div className={styles.arrow_container}>
           <span className={styles.arrow}>&rarr;</span>
         </div> */}
-        <hr className={styles.line} />
+            </div>
 
-        {/* Footer */}
-        <div className={styles.footer}>
-          <span className={styles.bottom_left}>
-            {langs.map((lang) => (
-              <span className={styles.lang}>{lang}</span>
-            ))}
-          </span>
-          <span className={styles.bottom_right}>
-            {tools.map((tool) => (
-              <span className={styles.tool}>{tool}</span>
-            ))}
-          </span>
-        </div>
+            {/* Footer */}
+            <div className={styles.footer}>
+              <hr className={styles.line} />
+              <div className={styles.footer_text}>
+                <span className={styles.bottom_left}>
+                  {(langs == null ? ["None"] : langs).map((lang) => (
+                    <span className={styles.lang}>{lang}</span>
+                  ))}
+                </span>
+                <span className={styles.bottom_right}>
+                  {(tools == null ? ["None"] : tools).map((tool) => (
+                    <span className={styles.tool}>{tool}</span>
+                  ))}
+                </span>
+              </div>
+            </div>
+          </div>
+        </Link>
       </div>
     </div>
   );
