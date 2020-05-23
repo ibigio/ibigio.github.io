@@ -6,6 +6,8 @@
   --color-gray-5: #e0e0e0;
   --color-blue: #2f80ed;
   --color-orange: #f2994a;
+
+  --max-width: 940px;
 }
 
 html,
@@ -21,14 +23,16 @@ body {
 h1,
 h2,
 h3 {
-  font-family: Roboto;
+  font-family: Noto Sans;
   font-weight: bold;
   margin: 0;
 }
 
+/* h1 {
+  font-size: 48px;
+} */
+
 h2 {
-  font-family: Noto Sans;
-  font-weight: bold;
   font-size: 36px;
 }
 

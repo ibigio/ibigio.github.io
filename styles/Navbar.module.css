@@ -1,11 +1,11 @@
 .container {
+  -webkit-box-sizing: border-box;
   background-color: var(--color-background);
   position: fixed;
   z-index: 1;
 
   width: 100vw;
   padding: 0 24px 0 24px;
-  -webkit-box-sizing: border-box;
 
   cursor: default;
 }
@@ -15,7 +15,7 @@
   grid-template-columns: auto auto;
 
   height: 60px;
-  max-width: 940px;
+  max-width: var(--max-width);
   margin: 0 auto 0;
 }
 

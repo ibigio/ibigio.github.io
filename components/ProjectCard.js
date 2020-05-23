@@ -29,12 +29,12 @@ export default function ProjectCard(props) {
               <hr className={styles.line} />
               <div className={styles.footer_text}>
                 <span className={styles.bottom_left}>
-                  {(langs == null ? ["None"] : langs).map((lang) => (
+                  {langs.map((lang) => (
                     <span className={styles.lang}>{lang}</span>
                   ))}
                 </span>
                 <span className={styles.bottom_right}>
-                  {(tools == null ? ["None"] : tools).map((tool) => (
+                  {tools.map((tool) => (
                     <span className={styles.tool}>{tool}</span>
                   ))}
                 </span>

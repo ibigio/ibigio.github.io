@@ -1,5 +1,5 @@
 .container {
-  max-width: 940px;
+  max-width: var(--max-width);
   margin: 0 auto 0;
 }
 
