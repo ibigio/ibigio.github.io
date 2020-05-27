@@ -673,7 +673,7 @@ eval("var api = __webpack_require__(/*! ../node_modules/style-loader/dist/runtim
 
 /***/ }),
 
-/***/ 1:
+/***/ 2:
 /*!*******************************************************************************************************************************************************************************!*\
   !*** multi next-client-pages-loader?page=%2Fprojects%2F%5Bid%5D&absolutePagePath=%2FUsers%2Filanbigio%2FDesktop%2Fgithub%2Fibigio.github.io%2Fpages%2Fprojects%2F%5Bid%5D.js ***!
   \*******************************************************************************************************************************************************************************/
@@ -696,4 +696,4 @@ eval("module.exports = dll_5030f387d328e4415785;//# sourceURL=[module]\n//# sour
 
 /***/ })
 
-},[[1,"static/runtime/webpack.js"]]]);
+},[[2,"static/runtime/webpack.js"]]]);
