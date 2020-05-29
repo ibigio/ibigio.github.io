@@ -8,6 +8,21 @@
   padding: 0 24px 0 24px;
 
   cursor: default;
+
+  outline: 1px solid var(--color-gray-5);
+}
+
+.cover {
+  visibility: hidden;
+  opacity: 50%;
+  background-color: black;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+
+  transition: opacity 0.2s;
 }
 
 .content {
@@ -41,17 +56,55 @@
   display: grid;
   grid-template-columns: auto auto;
 
-  font-weight: bold;
+  font-family: Noto Sans;
+  /* font-weight: bold; */
   font-size: 14px;
+}
+
+.hamburger {
+  width: 42px;
+  padding: 16px;
+  margin-right: -16px;
+  display: none;
+  background-color: white;
 }
 
 .sections {
   align-self: center;
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  min-width: 350px;
 }
 
 .section {
-  margin-left: 24px;
+  /* margin-left: 24px; */
   transition: color 0.2s;
+  align-self: center;
+  justify-self: right;
+}
+
+@media only screen and (max-width: 600px) {
+  .hamburger {
+    display: block;
+  }
+  .menu {
+    background-color: var(--color-background);
+    width: 100vw;
+    height: 60px;
+    position: fixed;
+    top: -60px;
+    transition: top 0.25s;
+    left: 0;
+  }
+  .sections {
+    position: relative;
+    justify-self: center;
+    min-width: 0;
+    padding: 18px 12px 0;
+  }
+  .section {
+    justify-self: center;
+  }
 }
 
 .section:hover {
@@ -60,7 +113,10 @@
 }
 
 .github_icon {
-  width: 20px;
-  height: auto;
-  margin-left: 24px;
+  /* width: 20px; */
+  height: 20px;
+  padding-top: 4px;
+  /* vertical-align: middle; */
+
+  /* margin-left: 24px; */
 }

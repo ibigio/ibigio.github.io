@@ -6,23 +6,27 @@ export default function Page({ children, projectData }) {
   return (
     <div className={styles.safe_zone}>
       <div className={styles.container}>
-        <Link href="/#projects">
-          <div className={styles.back_arrow}>&#8592; Projects</div>
-        </Link>
-
         <div className={styles.header}>
           <div className={styles.upper_header}>
-            <h1 className={styles.title}>{title}</h1>
+            <div className={styles.back_arrow}>
+              <Link href="/#projects">&#8592; Projects</Link>
+            </div>
+
+            <div className={styles.title}>{title}</div>
             <div className={styles.icons}>
-              {otherURL && (
-                <a href={otherURL}>
+              {otherURL ? (
+                <a href={otherURL} target="_blank">
                   <img className={styles.icon} src="/icons/link.svg" />
                 </a>
+              ) : (
+                <img className={styles.icon_gray} src="/icons/gray-link.svg" />
               )}
-              {githubURL && (
-                <a href={githubURL}>
+              {githubURL ? (
+                <a href={githubURL} target="_blank">
                   <img className={styles.icon} src="/icons/github.svg" />
                 </a>
+              ) : (
+                <img className={styles.icon} src="/icons/gray-github.svg" />
               )}
             </div>
           </div>

@@ -40,6 +40,7 @@
 .title {
   justify-self: left;
 
+  font-family: Noto Sans;
   font-size: 18px;
   font-weight: bold;
 }
@@ -54,12 +55,10 @@
 
 .icon {
   justify-self: right;
+  padding-top: 2px;
   width: 20px;
   height: 20px;
-}
-
-.icon svg {
-  fill: var(--color-blue);
+  display: none;
 }
 
 .body {
@@ -84,6 +83,19 @@
   margin-bottom: 12px;
 }
 
+.bullet {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.bullet_circle {
+  margin-top: 5px;
+}
+
+.bullet_text {
+  margin-left: 6px;
+}
+
 .arrow_container {
   display: grid;
 }
@@ -94,7 +106,7 @@
 }
 
 .line {
-  margin-block-start: 16px;
+  margin-block-start: 8px;
   margin-block-end: 10px;
   border-style: solid;
   border-color: var(--color-gray-5);

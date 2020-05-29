@@ -1,5 +1,6 @@
 :root {
   --color-background: white;
+  --color-gray-1: #333333;
   --color-gray-2: #4f4f4f;
   --color-gray-3: #828282;
   --color-gray-4: #bdbdbd;
@@ -8,21 +9,26 @@
   --color-orange: #f2994a;
 
   --max-width: 940px;
+  --max-mobile-width: 768px;
 }
 
 html,
 body {
+  -webkit-text-size-adjust: 100%;
   padding: 0;
   margin: 0;
 
   font-family: Roboto;
   font-weight: regular;
-  color: var(--color-gray-2);
+  color: var(--color-gray-1);
 }
 
 p {
-  line-height: 24px;
-  font-weight: 14px;
+  line-height: 30px;
+  font-size: 16px;
+  /* color: var(--color-gray-1); */
+  /* max-width: 700px;
+  margin: 0 auto 0; */
 }
 
 h1,
@@ -30,15 +36,12 @@ h2,
 h3 {
   font-family: Noto Sans;
   font-weight: bold;
-  margin: 0;
-}
+  font-size: 18px;
+  color: var(--color-blue);
 
-/* h1 {
-  font-size: 48px;
-} */
+  margin-top: 40px;
 
-h2 {
-  font-size: 36px;
+  /* margin: 0; */
 }
 
 a {
@@ -50,10 +53,22 @@ section {
   padding: 160px 24px;
 }
 
+.section_title {
+  font-family: Noto Sans;
+  font-weight: Bold;
+  font-size: 36px;
+}
+
 @font-face {
   font-family: Roboto;
   src: url("../fonts/Roboto/Roboto-Light.ttf") format("truetype");
   font-weight: regular;
+}
+
+@font-face {
+  font-family: Roboto;
+  src: url("../fonts/Roboto/Roboto-Regular.ttf") format("truetype");
+  font-weight: medium;
 }
 
 @font-face {

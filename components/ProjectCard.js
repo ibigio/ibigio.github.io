@@ -19,13 +19,13 @@ export default function ProjectCard(props) {
 
               {/* Body */}
               <div className={styles.body}>{description}</div>
-              {/* <div className={styles.arrow_container}>
-          <span className={styles.arrow}>&rarr;</span>
-        </div> */}
             </div>
 
             {/* Footer */}
             <div className={styles.footer}>
+              <div className={styles.arrow_container}>
+                <span className={styles.arrow}>&rarr;</span>
+              </div>
               <hr className={styles.line} />
               <div className={styles.footer_text}>
                 <span className={styles.bottom_left}>

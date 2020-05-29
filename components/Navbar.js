@@ -1,9 +1,23 @@
 import styles from "../styles/Navbar.module.css";
 import Link from "next/link";
 
+const showMenu = () => {
+  // document.getElementsByClassName(styles.menu).style.top = "0";
+  document.getElementById("menu").style.top = "0";
+  document.getElementById("cover").style.visibility = "visible";
+  document.getElementById("cover").style.opacity = "50%";
+};
+
+const hideMenu = () => {
+  document.getElementById("menu").style.top = "-60px";
+  document.getElementById("cover").style.opacity = "0%";
+  document.getElementById("cover").style.visibility = "hidden";
+};
+
 export default function Navbar() {
   return (
     <div className={styles.container}>
+      <div className={styles.cover} id="cover" onClick={hideMenu} />
       <div className={styles.content}>
         <div className={styles.left}>
           <Link href="/">
@@ -11,23 +25,30 @@ export default function Navbar() {
           </Link>
         </div>
         <div className={styles.right}>
-          <div className={styles.sections}>
-            <Link href="/">
-              <span className={styles.section}>Home</span>
-            </Link>
-            <Link href="#projects">
-              <span className={styles.section}>Projects</span>
-            </Link>
-            <Link href="#experience">
-              <span className={styles.section}>Experience</span>
-            </Link>
-            <a href="/resume.pdf">
-              <span className={styles.section}>Resume</span>
-            </a>
+          <img
+            className={styles.hamburger}
+            src="/icons/hamburger.svg"
+            onClick={showMenu}
+          />
+          <div className={styles.menu} id="menu" onClick={hideMenu}>
+            <div className={styles.sections}>
+              <span className={styles.section}>
+                <Link href="/">Home</Link>
+              </span>
+              <span className={styles.section}>
+                <Link href="#projects">Projects</Link>
+              </span>
+              <span className={styles.section}>
+                <Link href="#experience">Experience</Link>
+              </span>
+              <span className={styles.section}>
+                <Link href="/resume.pdf">Resume</Link>
+              </span>
+              <a className={styles.section} href="https://github.com/ibigio">
+                <img className={styles.github_icon} src="/icons/github.svg" />
+              </a>
+            </div>
           </div>
-          <a href="https://github.com/ibigio">
-            <img className={styles.github_icon} src="/icons/github.svg" />
-          </a>
         </div>
       </div>
     </div>

@@ -1,12 +1,20 @@
 import { getProjectData, getProjectIDs } from "../../lib/loading";
 import ProjectPageLayout from "../../components/ProjectPageLayout";
+import Head from "next/head";
 
 export default function Project({ projectData }) {
-  console.log(projectData);
   return (
-    <ProjectPageLayout projectData={projectData}>
-      <div dangerouslySetInnerHTML={{ __html: projectData.contentHTML }} />
-    </ProjectPageLayout>
+    <>
+      <Head>
+        <title>Ilan Bigio</title>
+        <meta charSet="utf-8" />
+        <meta content="width=device-width, initial-scale=1" name="viewport" />
+        <link rel="icon" type="image/x-icon" href="/logo.svg" />
+      </Head>
+      <ProjectPageLayout projectData={projectData}>
+        <div dangerouslySetInnerHTML={{ __html: projectData.contentHTML }} />
+      </ProjectPageLayout>
+    </>
   );
 }
 

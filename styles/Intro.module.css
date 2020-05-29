@@ -8,16 +8,23 @@
 
 .profile {
   height: 200px;
+  margin-right: 30px;
+  justify-self: center;
+  align-self: center;
   width: auto;
+}
+
+@media screen and (max-width: 768px) {
+  .profile {
+    display: none;
+  }
 }
 
 .intro_text {
   align-self: center;
-  margin-left: 30px;
 
   font-family: Roboto;
-  font-weight: regular;
-  color: var(--color-gray-2);
+  font-weight: medium;
 }
 
 .subtitle {
