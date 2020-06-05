@@ -2,7 +2,6 @@ import styles from "../styles/Card.module.css";
 import Link from "next/link";
 
 export default function ProjectCard(props) {
-  console.log(props);
   const { id, title, iconPath, description, langs, tools } = props;
   const url = "/projects/" + id;
   return (

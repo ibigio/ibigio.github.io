@@ -85,9 +85,9 @@
 .line {
   margin-block-start: 8px;
   margin-block-end: 8px;
-  border-style: solid;
-  border-color: var(--color-gray-5);
-  border-width: 0.5px;
+  border: none;
+  height: 1px;
+  background-color: var(--color-gray-5);
 }
 
 .lower_header {
