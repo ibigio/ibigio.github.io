@@ -32,12 +32,13 @@ export default function Home({ projectsData, experienceData }) {
       <body>
         <Navbar />
         <section id="intro" className={styles.intro_section}>
+          <div className={styles.white_line} />
           <Intro />
           <SLink
             className={styles.down_arrow}
             to="projects"
-            smooth={true}
-            duration={500}
+            smooth="easeInOutQuad"
+            duration={800}
             offset={70}
           >
             <img src="/icons/down-arrow.svg" />
