@@ -7,6 +7,7 @@ import ProjectsSection from "../components/ProjectsSection";
 import ExperienceSection from "../components/ExperienceSection";
 import CopyrightSection from "../components/CopyrightSection";
 import { getCardData } from "../lib/loading";
+import { Link as SLink } from "react-scroll";
 
 export async function getStaticProps() {
   const projectsData = getCardData("projects");
@@ -30,18 +31,24 @@ export default function Home({ projectsData, experienceData }) {
       </Head>
       <body>
         <Navbar />
-        <section name="intro" className={styles.intro_section}>
+        <section id="intro" className={styles.intro_section}>
           <Intro />
-          <Link href="/#projects">
-            <img className={styles.down_arrow} src="/icons/down-arrow.svg" />
-          </Link>
+          <SLink
+            className={styles.down_arrow}
+            to="projects"
+            smooth={true}
+            duration={500}
+            offset={70}
+          >
+            <img src="/icons/down-arrow.svg" />
+          </SLink>
         </section>
 
-        <section name="projects" className={styles.projects_section}>
+        <section id="projects" className={styles.projects_section}>
           <ProjectsSection projectsData={projectsData} />
         </section>
 
-        <section name="experience" className={styles.experience_section}>
+        <section id="experience" className={styles.experience_section}>
           <ExperienceSection experienceData={experienceData} />
         </section>
         <section className={styles.copyright_section}>

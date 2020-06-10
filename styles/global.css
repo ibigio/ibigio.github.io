@@ -21,6 +21,8 @@ body {
   font-family: Roboto;
   font-weight: regular;
   color: var(--color-gray-1);
+
+  /* scroll-behavior: smooth; */
 }
 
 p {

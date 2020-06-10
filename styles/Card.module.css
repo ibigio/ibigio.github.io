@@ -89,11 +89,11 @@
 }
 
 .bullet_circle {
-  margin-top: 5px;
+  margin-top: 6px;
 }
 
 .bullet_text {
-  margin-left: 6px;
+  margin-left: 12px;
 }
 
 .arrow_container {
@@ -103,10 +103,12 @@
 .arrow {
   justify-self: right;
   color: var(--color-blue);
+  padding-right: 4px;
+  margin-bottom: -8px;
 }
 
 .line {
-  margin-block-start: 8px;
+  margin-block-start: 16px;
   margin-block-end: 10px;
   border: none;
   height: 1px;

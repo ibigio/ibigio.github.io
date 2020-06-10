@@ -1,8 +1,7 @@
 import styles from "../styles/Navbar.module.css";
-import Link from "next/link";
+import { Link } from "react-scroll";
 
 const showMenu = () => {
-  // document.getElementsByClassName(styles.menu).style.top = "0";
   document.getElementById("menu").style.top = "0";
   document.getElementById("cover").style.visibility = "visible";
   document.getElementById("cover").style.opacity = "50%";
@@ -20,7 +19,7 @@ export default function Navbar() {
       <div className={styles.cover} id="cover" onClick={hideMenu} />
       <div className={styles.content}>
         <div className={styles.left}>
-          <Link href="/">
+          <Link to="intro" smooth={true} duration={500}>
             <img className={styles.logo} src="/icons/logo.svg" />
           </Link>
         </div>
@@ -33,16 +32,39 @@ export default function Navbar() {
           <div className={styles.menu} id="menu" onClick={hideMenu}>
             <div className={styles.sections}>
               <span className={styles.section}>
-                <Link href="/">Home</Link>
+                <Link
+                  to="intro"
+                  smooth={true}
+                  duration={500}
+                  onClick={hideMenu}
+                >
+                  Home
+                </Link>
               </span>
               <span className={styles.section}>
-                <Link href="#projects">Projects</Link>
+                <Link
+                  to="projects"
+                  smooth={true}
+                  duration={500}
+                  offset={70}
+                  onClick={hideMenu}
+                >
+                  Projects
+                </Link>
               </span>
               <span className={styles.section}>
-                <Link href="#experience">Experience</Link>
+                <Link
+                  to="experience"
+                  smooth={true}
+                  duration={500}
+                  offset={70}
+                  onClick={hideMenu}
+                >
+                  Experience
+                </Link>
               </span>
               <span className={styles.section}>
-                <Link href="/resume.pdf">Resume</Link>
+                <a href="/resume.pdf">Resume</a>
               </span>
               <a className={styles.section} href="https://github.com/ibigio">
                 <img className={styles.github_icon} src="/icons/github.svg" />

@@ -9,7 +9,9 @@ export default function Page({ children, projectData }) {
         <div className={styles.header}>
           <div className={styles.upper_header}>
             <div className={styles.back_arrow}>
-              <Link href="/#projects">&#8592; Projects</Link>
+              <Link href="/#projects">
+                <a>&#8592; Projects</a>
+              </Link>
             </div>
 
             <div className={styles.title}>{title}</div>
