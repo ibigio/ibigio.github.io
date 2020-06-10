@@ -27,7 +27,7 @@ export default function Home({ projectsData, experienceData }) {
         <title>Ilan Bigio</title>
         <meta charSet="utf-8" />
         <meta content="width=device-width, initial-scale=1" name="viewport" />
-        <link rel="icon" type="image/x-icon" href="/icons/logo.svg" />
+        <link rel="icon" type="image/x-icon" href="/favicon.svg" />
       </Head>
       <body>
         <Navbar />
