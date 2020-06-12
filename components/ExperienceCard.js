@@ -26,11 +26,11 @@ export default function ExperienceCard({
           <ul className={styles.bullets}>
             {bullets.map((e) => (
               <li className={styles.bullet} key={e}>
-                <svg className={styles.bullet_circle} height="10" width="10">
+                <svg className={styles.bullet_circle} height="8" width="8">
                   <circle
-                    cx="5"
-                    cy="5"
-                    r="4"
+                    cx="4"
+                    cy="4"
+                    r="3"
                     stroke="#F2994A"
                     stroke-width="1.5"
                     fill="white"

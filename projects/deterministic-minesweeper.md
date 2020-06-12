@@ -6,6 +6,7 @@ langs: [Python, JS]
 tools: [Heroku, SciPy, p5.js]
 githubURL: https://github.com/ibigio/minesweeper_rough_draft
 otherURL: https://better-minesweeper-draft.herokuapp.com/
+favorite: true
 ---
 
 Details coming soon!

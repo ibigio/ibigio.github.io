@@ -5,6 +5,7 @@ description: I reverse engineered Lyft Bikes API to add remote-unlock functional
 langs: [Python]
 tools: [AsyncIO, CharlesProxy]
 githubURL: https://github.com/ibigio/baywheels
+favorite: true
 ---
 
 Details coming soon!

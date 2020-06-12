@@ -2,10 +2,11 @@ import styles from "../styles/Card.module.css";
 import Link from "next/link";
 
 export default function ProjectCard(props) {
-  const { id, title, iconPath, description, langs, tools } = props;
+  const { id, title, iconPath, description, langs, tools, favorite } = props;
   const url = "/projects/" + id;
   return (
     <div className={styles.container}>
+      {favorite && <img className={styles.badge} src="/icons/star-badge.svg" />}
       <div className={styles.selectable}>
         <Link href={url}>
           <div className={styles.content}>
