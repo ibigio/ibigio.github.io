@@ -1,64 +1,38 @@
-# gh-pages Hello World example
+# Personal Website
 
-This example shows the most basic idea behind Next. We have 2 pages: `pages/index.js` and `pages/about.js`. The former responds to `/` requests and the latter to `/about`. Using `next/link` you can add hyperlinks between them with universal routing capabilities.
+This is my personal website, where I put an arbitrary selection of projects for the world to judge (and enjoy)! I designed it from scratch using Figma and built it using Next.js, a neat little React framework that made construction easy but deployment hell (due only to my relentless insistance on using GitHub Pgaes.)
 
-## How to use
+## Setup
+In order to host this statically on GitHub Pages, you have to provide it with a static build, not straight Next.js. To do this I turned the `out` folder, where the static site build is located, into a [git subtree](https://www.atlassian.com/git/tutorials/git-subtree). By making the `out` folder be the `master` branch, GitHub Pages will happily host it. Therefore, the actual source files have to be in a different branch, which I just called `next-devel`.
 
-### Using `create-next-app`
-
-Execute [`create-next-app`](https://github.com/zeit/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init) or [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/) to bootstrap the example:
-
+Since cloning defaults the branch to master, run
 ```bash
-npm init next-app --example gh-pages gh-pages-app
-# or
-yarn create next-app --example gh-pages gh-pages-app
+git checkout next-devel
 ```
 
-### Download manually
-
-Download the example:
-
-```bash
-curl https://codeload.github.com/zeit/next.js/tar.gz/master | tar -xz --strip=2 next.js-master/examples/gh-pages
-cd gh-pages
-```
-
-Install it and run:
-
+Then install dependenices by running
 ```bash
 npm install
-npm run dev
-# or
-yarn
-yarn dev
 ```
 
-### Deploy it to github
+## Run and Deploy
 
-Edit `env-config.js` and replace `'Next-gh-page-example'` by your project name.
+To deploy the website locally, run
+```bash
+npm run dev
+```
 
-Edit `next.config.js` and replace `'Next-gh-page-example'` by your project name.
-
-1.  Create repository.
-2.  Link it to your github account.
-3.  Publish your master branch.
-
+To deploy to github, run
 ```bash
 npm run deploy
 ```
 
-Test it:
+This command doesn't look like much, but in order to get this working with GitHub Pages it does the following:
+- clears node cache
+- builds and "exports" static version of the site into `out` directory
+- creates a `.nojekyll` file inside `out`? (I don't remember why)
+- copies the `CNAME` file into `out` so github knows my domain
+- adds and commits the `out` dir to the `next-devel` branch for logging
+- pushes the `out` subtree into `master`
 
-Replace `<github-user-name>` and `<github-project-name>`
-
-```bash
-https://<github-user-name>.github.io/<github-project-name>/
-```
-
-Example:
-
-```bash
-https://github.com/thierryc/Next-gh-page-example/
-
-https://thierryc.github.io/Next-gh-page-example/
-```
+It would have been so much easier to just use Vercel, which was literally created to host Next.js pages, but alas. I really wanted to use GitHub Pages.
