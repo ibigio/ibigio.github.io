@@ -2,7 +2,7 @@
 
 This is my personal website, where I put an arbitrary selection of projects for the world to judge (and enjoy)! I designed it from scratch using Figma and built it using Next.js, a neat little React framework that made construction easy but deployment hell (due only to my relentless insistance on using GitHub Pgaes.)
 
-**Website URL:** ilanbigio.com
+**Website URL:** https://ilanbigio.com/
 
 **Figma Designs:** https://www.figma.com/file/X9hzvLXDyNnWK0RNASmrkJ/Personal-Website
 
