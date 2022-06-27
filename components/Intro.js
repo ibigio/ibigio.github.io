@@ -14,10 +14,10 @@ export default function Intro() {
         <div className={styles.subtitle}>ilanbigio@gmail.com</div>
         <div className={styles.body}>
           I graduated with a degree in computer science from{" "}
-          {orange("Brown University")}, and will be starting at{" "}
-          {orange("Google")} as a software engineer in August. I love teaching
-          and learning, and in my free time I build python projects that
-          automate stuff to “save me time”.
+          {orange("Brown University")}, and have been working at{" "}
+          {orange("Google")} as a software engineer since August 2020. I love
+          teaching and learning, and in my free time I build python projects
+          that automate stuff to “save me time”.
         </div>
       </div>
     </div>
