@@ -4,6 +4,9 @@ import utilsStyles from "../styles/utils.module.css";
 const orange = (text) => <span className={styles.orange}>{text}</span>;
 
 export default function Intro() {
+  const tenure = Math.floor(
+    (new Date() - new Date("August 03, 2020")) / (1000 * 60 * 60 * 24 * 365)
+  );
   return (
     <div className={styles.container}>
       <img className={styles.profile} src="/images/profile.png" />
@@ -13,11 +16,10 @@ export default function Intro() {
         </div>
         <div className={styles.subtitle}>ilanbigio@gmail.com</div>
         <div className={styles.body}>
-          I graduated with a degree in computer science from{" "}
-          {orange("Brown University")}, and have been working at{" "}
-          {orange("Google")} as a software engineer since August 2020. I love
-          teaching and learning, and in my free time I build python projects
-          that automate stuff to “save me time”.
+          I studied computer science at {orange("Brown University")} and have
+          been a software engineer at {orange("Google")} for {tenure} years. I
+          have a passion for teaching and learning, and love wasting time
+          building "time-saving" python automations!
         </div>
       </div>
     </div>
