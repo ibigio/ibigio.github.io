@@ -18,7 +18,7 @@ export default function Intro() {
         <div className={styles.body}>
           I studied computer science at {orange("Brown University")} and have
           been a software engineer at {orange("Google")} for {tenure} years. I
-          have a passion for teaching and learning, and love sinking time
+          have a passion for teaching and learning, and love sinking time into
           building "time-saving" python automations!
         </div>
       </div>
