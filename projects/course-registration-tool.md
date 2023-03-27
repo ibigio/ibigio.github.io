@@ -8,20 +8,4 @@ githubURL: https://github.com/ibigio/course-lookout
 favorite: true
 ---
 
-# Overview
-
-I created this course registration tool to notify me when someone drops a capped class so I could immediately register for it, saving me the burden of continous checking by hand. The most recent version of this tool allows Brown students to text a course code to a specific phone number using traditional SMS. Then, I use Twilio and Heroku to handle the requests, confirming that the course is being monitored, and eventually sending a text as soon as a spot opens up.
-
-I first created this tool freshamn year using Bash, and re-implemented twice after in Python, integrating Twilio and Heroku. Each iteartion cleaned up code, simplified logic, added features such as texting and public usage, or fixed access to deprecated endpoints.
-
-# First Iteration: Bash
-
-While enrolling for classes during my first semester at Brown, I realized some of the courses I wanted to take had an enrollment cap. After spending a day refreshing the registration page every five minutes, I decided there had to be a better way.
-
-At that time the only computer science experience I had was playing around with OS X's terminal, so I decided to use Bash (since it was the only language I knew). I knew little about browsers and network requets, but some Googling led me to a Firefox plugin that showed me all of the requests going to a single URL. Turns out all registration data was stored in a single huge JSON. (Jackpot!)
-
-...except I did not know know about JSON at the time, so I just iterated over the string in a Bash for loop, looking for a specific sequence representing the course's ID. It took 4 minutes to run, but it technically worked! My first successful test just so happened to coincide with a slot opening up in a multivariable calculus class, which I promptly registered for.
-
-# Second Iteration: Python
-
-Sophmore year
+The Course Registration Tool serves as a convenient SMS-based service that allows students to request notifications when a spot becomes available in a capped class. Initially developed using Bash during my freshman year at Brown, I later re-implemented it twice in Python, integrating Twilio and Heroku. This updated version streamlined the code, added features such as texting and public usage, and addressed deprecated endpoints. The tool's most recent iteration allows students to simply text a course code to a designated phone number, and the requests are then managed by Twilio and Heroku. Once a spot opens up in the desired class, students receive a prompt text message, eliminating the need for constant manual checking. The Course Registration Tool showcases my proficiency in Python and Bash, as well as my ability to effectively use tools such as Heroku and Twilio. To learn more, visit the project's GitHub repository at https://github.com/ibigio/course-lookout.
