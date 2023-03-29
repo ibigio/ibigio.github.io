@@ -1,4 +1,12 @@
-<svg width="46" height="25" viewBox="0 0 46 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <line x1="0.353553" y1="0.995079" x2="23.0051" y2="23.6466" stroke="#2F80ED" />
-    <line x1="45.3081" y1="1.35355" x2="22.6566" y2="24.0051" stroke="#2F80ED" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 87.65 26.99">
+    <defs>
+        <style>.cls-1{fill:none;stroke:#2f80ed;stroke-linecap:round;stroke-width:2px;}</style>
+    </defs>
+    <title>down-arrow</title>
+    <g id="Layer_2" data-name="Layer 2">
+        <g id="Layer_1-2" data-name="Layer 1">
+            <line class="cls-1" x1="1" y1="1" x2="43.77" y2="25.99" />
+            <line class="cls-1" x1="86.65" y1="1" x2="43.88" y2="25.99" />
+        </g>
+    </g>
 </svg>
