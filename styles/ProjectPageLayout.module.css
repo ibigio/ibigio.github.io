@@ -7,6 +7,11 @@
   grid-template-columns: auto;
 }
 
+.content p {
+  line-height: 1.6em;
+  font-size: 18px;
+}
+
 .container {
   /* -webkit-box-sizing: border-box; */
   /* height: 100%; */
