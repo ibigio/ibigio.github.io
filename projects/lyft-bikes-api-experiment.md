@@ -8,6 +8,8 @@ githubURL: https://github.com/ibigio/baywheels
 favorite: true
 ---
 
+<img src="/images/bikes.jpeg" />
+
 During my internship at Twitter in San Francisco, I used Citi Bikes to commute to work. However, I often found that bikes would be taken before I could get to them, even though they appeared available on the app's map. Instead of waking up earlier, I decided to reverse engineer the system to remotely unlock a bike for myself.
 
 To do this, I set up a man-in-the-middle setup with Charles Proxy, including SSL decryption using a custom certificate, to inspect my own traffic from the Lyft app while making a request. I examined the API endpoints for bike lists, stations, and other relevant data. I discovered that location-locking was implemented by sending GPS coordinates as part of the request, making it easy to bypass proximity checks by emulating any location.

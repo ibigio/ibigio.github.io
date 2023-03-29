@@ -36,7 +36,7 @@
 }
 
 .header {
-  margin-bottom: 80px;
+  margin-bottom: 40px;
 }
 
 .upper_header {
@@ -114,8 +114,16 @@
 }
 
 .main {
+  margin-top: 40px;
   /* max-width: 600px;
   margin: 0 auto 0; */
+}
+
+.main img {
+  height: 100%;
+  width: 100%;
+  display: block;
+  margin: auto;
 }
 
 .copyright {

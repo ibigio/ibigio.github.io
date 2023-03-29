@@ -8,6 +8,8 @@ githubURL: https://github.com/ibigio/ibigio.github.io/tree/next-devel
 otherURL: https://www.figma.com/file/X9hzvLXDyNnWK0RNASmrkJ/Personal-Website
 ---
 
+<img src="/images/website.png" />
+
 My personal website serves as a platform to showcase my work and skills as a developer. I designed and built the entire site from scratch using Figma for design and React for the frontend framework. The website's design is simple, intuitive, and fully responsive, making it easy for visitors to navigate and explore my projects.
 
 Initially, I set up a static deployment strategy on Github Pages using git subtrees to keep bundled code and source in the same directory. However, I soon realized that I should have opted for a more efficient approach like Vercel. In hindsight, this is very obviously what I should have done in the first place. Fortunately, this mistake only cost me three headaches.
