@@ -1,16 +1,28 @@
 ---
 title: AI Shell Assistant
 description: Command-line utility that turns natural language description into a runnable command.
-langs: [JS]
-tools: [Deno, OpenAI API]
+langs: [Go]
+tools: [OpenAI API, Bubble Tea, Homebrew]
 githubURL: https://github.com/ibigio/shell-ai
 favorite: true
 ---
 
-<img src="/images/shell-ai.png" />
+<img src="https://user-images.githubusercontent.com/25421602/244264868-88a4aed3-4235-461a-ae1b-0a47c32d193b.gif" />
 
-The AI Shell Assistant is a command-line utility project that aims to convert natural language descriptions into runnable commands. It is built using JavaScript, with Deno and the OpenAI API as key components.
+A delightfully minimal, yet awfully powerful AI Shell Assistant.
 
-This utility is designed for ease of use and is based on the Codex model. By providing a few examples of bash comments followed by the correct commands, the AI Shell Assistant effectively generates accurate and reliable commands. The project is in the process of transitioning to the gp4 model, which will further enhance its performance.
+# Why
 
-To maintain security and controlled access during the beta testing phase, the Deno server enforces API key access for testers. The AI Shell Assistant is a favorite project on my personal website, reflecting its importance and potential in simplifying the command-line experience for users.
+I use the Terminal a lot, and forget commands a lot, so end up sifting through pages on Google... a lot. I got tired, so I built this. :)
+
+# How
+
+Shell AI uses the OpenAI API to turn natural language instructions into shell commands, and answer reference questions that commonly come up during software development. I built it with extreme focus on developer experience, keeping the interaction and output as minimal (and stylish) as possible.
+
+This project was originally written in Javascript and run on Deno, but I opted to re-write it in Go to leverage the beautiful styling in [Glamour](https://github.com/charmbracelet/glamour) and the screen control in [Bubble Tea](https://github.com/charmbracelet/bubbletea). ([charm.sh](https://charm.sh/) is so cool)
+
+(Displaying the streaming response was a bit of a pain, but it makes it feel so much snappier.)
+
+# Open Source!
+
+The project is Open Source and available on Homebrew. Installation instructions in the repo!
