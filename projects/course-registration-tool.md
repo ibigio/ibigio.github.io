@@ -5,7 +5,6 @@ description: SMS-based service that allowed students to request to be notified w
 langs: [Python, Bash]
 tools: [Heroku, Twilio]
 githubURL: https://github.com/ibigio/course-lookout
-favorite: true
 ---
 
 <img src="/images/course-registration.png" />

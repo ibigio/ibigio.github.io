@@ -2,7 +2,7 @@
 title: AI Shell Assistant
 description: A delightfully minimal, yet remarkably powerful AI Shell Assistant.
 langs: [Go]
-tools: [OpenAI API, Bubble Tea, Homebrew]
+tools: [OpenAI API, Bubble Tea]
 githubURL: https://github.com/ibigio/shell-ai
 favorite: true
 ---
