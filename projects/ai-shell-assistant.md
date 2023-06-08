@@ -1,6 +1,6 @@
 ---
 title: AI Shell Assistant
-description: Command-line utility that turns natural language description into a runnable command.
+description: A delightfully minimal, yet remarkably powerful AI Shell Assistant.
 langs: [Go]
 tools: [OpenAI API, Bubble Tea, Homebrew]
 githubURL: https://github.com/ibigio/shell-ai
@@ -9,7 +9,7 @@ favorite: true
 
 <img src="https://user-images.githubusercontent.com/25421602/244264868-88a4aed3-4235-461a-ae1b-0a47c32d193b.gif" />
 
-A delightfully minimal, yet awfully powerful AI Shell Assistant.
+A delightfully minimal, yet remarkably powerful AI Shell Assistant.
 
 # Why
 
