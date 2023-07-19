@@ -16,10 +16,10 @@ export default function Intro() {
         </div>
         <div className={styles.subtitle}>ilanbigio@gmail.com</div>
         <div className={styles.body}>
-          I studied computer science at {orange("Brown University")} and have
-          been a software engineer at {orange("Google")} for {tenure} years. I
-          have a passion for teaching and learning, and love sinking time into
-          building "time-saving" python automations!
+          I graduated from {orange("Brown University")}, spent 3 years at{" "}
+          {orange("Google")}, and am currently working at {orange("OpenAI")}. I
+          have a passion for teaching and learning, and spend an astounding
+          amount of time on my pet projects.
         </div>
       </div>
     </div>

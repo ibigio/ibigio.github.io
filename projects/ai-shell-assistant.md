@@ -7,7 +7,7 @@ githubURL: https://github.com/ibigio/shell-ai
 favorite: true
 ---
 
-<img src="https://user-images.githubusercontent.com/25421602/244264868-88a4aed3-4235-461a-ae1b-0a47c32d193b.gif" />
+<img src="https://user-images.githubusercontent.com/25421602/247963139-f480db5d-3787-49d8-b1bc-a027f65858e6.gif" />
 
 A delightfully minimal, yet remarkably powerful AI Shell Assistant.
 
