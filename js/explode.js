@@ -102,7 +102,6 @@
   const explode = (Matter, wordEl) => {
     if (wordEl.dataset.exploded === '1') return;
     wordEl.dataset.exploded = '1';
-    wordEl.classList.add('exploded');
     wordEl.style.pointerEvents = 'none';
 
     const textNode = getTextNode(wordEl);
@@ -165,6 +164,7 @@
     }
 
     if (bodies.length === 0) return;
+    wordEl.classList.add('exploded');
     Composite.add(world, bodies);
 
     for (const body of bodies) {
