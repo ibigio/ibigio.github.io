@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Header Options</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --text: #111;
+      --muted: #555;
+      --link: #0055cc;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text: #ddd;
+        --muted: #888;
+        --link: #6ab0ff;
+      }
+      body { background: #111; }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text);
+      padding: 2rem;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .option {
+      border: 1px solid var(--muted);
+      padding: 2.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .option-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .bio { color: var(--muted); }
+    nav a { color: var(--muted); text-decoration: none; }
+    nav a:hover { color: var(--link); }
+    nav a + a::before { content: " · "; }
+
+    /* 1: Simple split */
+    .opt1 .greeting {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    .opt1 .bio { margin-bottom: 0.5rem; }
+
+    /* 2: Bigger text */
+    .opt2 .greeting {
+      display: flex;
+      justify-content: space-between;
+      font-size: 2.25rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    .opt2 .bio { margin-bottom: 0.5rem; }
+
+    /* 3: More breathing room */
+    .opt3 .greeting {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 2.5rem;
+    }
+    .opt3 .bio { margin-bottom: 0.75rem; }
+
+    /* 4: Light weight */
+    .opt4 .greeting {
+      display: flex;
+      justify-content: space-between;
+      font-size: 2rem;
+      font-weight: 400;
+      margin-bottom: 1.5rem;
+    }
+    .opt4 .bio { margin-bottom: 0.5rem; }
+
+    /* 5: Nav on same line as "I'm Ilan" */
+    .opt5 .greeting {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 1.5rem;
+    }
+    .opt5 .hi { font-size: 1.75rem; font-weight: 600; }
+    .opt5 .name-nav { display: flex; align-items: baseline; gap: 1.5rem; }
+    .opt5 .name { font-size: 1.75rem; font-weight: 600; }
+    .opt5 .bio { margin-bottom: 0.5rem; }
+
+    /* 6: Blurb indented */
+    .opt6 .greeting {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    .opt6 .content { margin-left: 2rem; }
+    .opt6 .bio { margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+
+<div class="option opt1">
+  <div class="option-label">1 — Simple split</div>
+  <header>
+    <div class="greeting">
+      <span>Hi,</span>
+      <span>I'm Ilan.</span>
+    </div>
+    <p class="bio">I'm fascinated by interfaces: digital, physical, and human.<br>Currently working on reinforcement learning research and tooling at OpenAI.</p>
+    <nav>
+      <a href="#">GitHub</a>
+      <a href="#">Twitter</a>
+      <a href="#">Substack</a>
+    </nav>
+  </header>
+</div>
+
+<div class="option opt2">
+  <div class="option-label">2 — Bigger</div>
+  <header>
+    <div class="greeting">
+      <span>Hi,</span>
+      <span>I'm Ilan.</span>
+    </div>
+    <p class="bio">I'm fascinated by interfaces: digital, physical, and human.<br>Currently working on reinforcement learning research and tooling at OpenAI.</p>
+    <nav>
+      <a href="#">GitHub</a>
+      <a href="#">Twitter</a>
+      <a href="#">Substack</a>
+    </nav>
+  </header>
+</div>
+
+<div class="option opt3">
+  <div class="option-label">3 — More air below greeting</div>
+  <header>
+    <div class="greeting">
+      <span>Hi,</span>
+      <span>I'm Ilan.</span>
+    </div>
+    <p class="bio">I'm fascinated by interfaces: digital, physical, and human.<br>Currently working on reinforcement learning research and tooling at OpenAI.</p>
+    <nav>
+      <a href="#">GitHub</a>
+      <a href="#">Twitter</a>
+      <a href="#">Substack</a>
+    </nav>
+  </header>
+</div>
+
+<div class="option opt4">
+  <div class="option-label">4 — Light weight</div>
+  <header>
+    <div class="greeting">
+      <span>Hi,</span>
+      <span>I'm Ilan.</span>
+    </div>
+    <p class="bio">I'm fascinated by interfaces: digital, physical, and human.<br>Currently working on reinforcement learning research and tooling at OpenAI.</p>
+    <nav>
+      <a href="#">GitHub</a>
+      <a href="#">Twitter</a>
+      <a href="#">Substack</a>
+    </nav>
+  </header>
+</div>
+
+<div class="option opt5">
+  <div class="option-label">5 — Nav beside name</div>
+  <header>
+    <div class="greeting">
+      <span class="hi">Hi,</span>
+      <div class="name-nav">
+        <span class="name">I'm Ilan.</span>
+        <nav>
+          <a href="#">GitHub</a>
+          <a href="#">Twitter</a>
+          <a href="#">Substack</a>
+        </nav>
+      </div>
+    </div>
+    <p class="bio">I'm fascinated by interfaces: digital, physical, and human.<br>Currently working on reinforcement learning research and tooling at OpenAI.</p>
+  </header>
+</div>
+
+<div class="option opt6">
+  <div class="option-label">6 — Blurb indented</div>
+  <header>
+    <div class="greeting">
+      <span>Hi,</span>
+      <span>I'm Ilan.</span>
+    </div>
+    <div class="content">
+      <p class="bio">I'm fascinated by interfaces: digital, physical, and human.<br>Currently working on reinforcement learning research and tooling at OpenAI.</p>
+      <nav>
+        <a href="#">GitHub</a>
+        <a href="#">Twitter</a>
+        <a href="#">Substack</a>
+      </nav>
+    </div>
+  </header>
+</div>
+
+</body>
+</html>

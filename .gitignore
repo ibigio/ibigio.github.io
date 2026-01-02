@@ -1,4 +1,1 @@
-node_modules
-.next
-**/.DS_Store
-out
+.DS_Store

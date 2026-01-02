@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reverse engineering Lyft bikes for fun (and profit) - Ilan Bigio</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" media="(prefers-color-scheme: light)">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" media="(prefers-color-scheme: dark)">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script defer>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body>
+  <article>
+    <header>
+      <a href="../index.html" class="back">← Back</a>
+      <h1>Reverse engineering Lyft bikes for fun (and profit)</h1>
+      <time datetime="2026-01-15">January 2026</time>
+    </header>
+
+    <p>This is the <strong>opening paragraph</strong> with some <em>italic text</em> and a <a href="https://example.com">link to somewhere</a>. It sets the stage for what's to come.</p>
+
+    <h2>The Discovery</h2>
+
+    <p>I was curious about how Lyft's bike-sharing system worked under the hood. What started as idle curiosity turned into a deep dive into their API.</p>
+
+    <p>Here's what I found when I started poking around:</p>
+
+    <ul>
+      <li>The bikes communicate over cellular networks</li>
+      <li>Each bike has a unique identifier</li>
+      <li>The API is surprisingly <em>well-documented</em> (internally)</li>
+    </ul>
+
+    <h2>Technical Deep Dive</h2>
+
+    <p>The first thing I did was inspect the network traffic. You can do this with a simple <code>curl</code> command:</p>
+
+    <pre><code>curl -X GET "https://api.example.com/bikes" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json"</code></pre>
+
+    <p>The response looked something like this:</p>
+
+    <pre><code>{
+  "bikes": [
+    {
+      "id": "bike_abc123",
+      "lat": 37.7749,
+      "lng": -122.4194,
+      "battery": 87,
+      "status": "available"
+    }
+  ],
+  "total": 1542
+}</code></pre>
+
+    <h3>Parsing the Data</h3>
+
+    <p>I wrote a simple Python script to parse this:</p>
+
+    <pre><code>import requests
+import json
+
+def get_available_bikes(lat, lng, radius=500):
+    """Fetch all available bikes within a radius."""
+    response = requests.get(
+        f"https://api.example.com/bikes",
+        params={"lat": lat, "lng": lng, "radius": radius}
+    )
+    return response.json()["bikes"]
+
+# Find bikes near Dolores Park
+bikes = get_available_bikes(37.7596, -122.4269)
+print(f"Found {len(bikes)} bikes nearby")</code></pre>
+
+    <h2>What I Learned</h2>
+
+    <ol>
+      <li>Always check for rate limiting</li>
+      <li>APIs often expose more than intended</li>
+      <li>Documentation is sometimes hidden in plain sight</li>
+    </ol>
+
+    <blockquote>
+      <p>"The best way to understand a system is to try to break it." — Someone, probably</p>
+    </blockquote>
+
+    <h3>A Note on Ethics</h3>
+
+    <p>I want to be clear: I didn't do anything <strong>malicious</strong> with this information. The goal was purely educational. If you're doing similar research:</p>
+
+    <ul>
+      <li>Don't abuse rate limits</li>
+      <li>Don't access data you shouldn't</li>
+      <li>Report vulnerabilities responsibly</li>
+    </ul>
+
+    <hr>
+
+    <p>If you found this interesting, you might also enjoy my post on <a href="#">building a Bayesian Liar's Dice AI</a>. Or follow me on <a href="https://twitter.com/ilanbigio">Twitter</a> where I post about this kind of stuff.</p>
+
+  </article>
+</body>
+</html>
