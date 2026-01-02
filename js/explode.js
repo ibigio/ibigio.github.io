@@ -174,8 +174,13 @@
       const jitter = () => (Math.random() - 0.5) * 0.35;
       const dx = dx0 / mag + jitter();
       const dy = dy0 / mag + jitter();
-      const outward = 0.03;
-      const upward = -0.06;
+      const outward = 0.08;
+      const upward = -0.22;
+
+      Body.setVelocity(body, {
+        x: dx * 10,
+        y: dy * 6 - 14,
+      });
 
       Body.applyForce(body, body.position, {
         x: dx * outward,
