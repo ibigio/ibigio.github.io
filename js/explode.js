@@ -173,9 +173,14 @@
       const mag = Math.hypot(dx0, dy0) || 1;
       const jitter = () => (Math.random() - 0.5) * 0.35;
       const dx = dx0 / mag + jitter();
-      const dy = dy0 / mag + jitter() - 0.4;
+      const dy = dy0 / mag + jitter();
+      const outward = 0.03;
+      const upward = -0.06;
 
-      Body.applyForce(body, body.position, { x: dx * 0.02, y: dy * 0.02 });
+      Body.applyForce(body, body.position, {
+        x: dx * outward,
+        y: dy * outward + upward,
+      });
       Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.25);
     }
 
