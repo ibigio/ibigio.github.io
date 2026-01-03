@@ -13,21 +13,23 @@
   <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
 </head>
 <body>
-  <a href="../index.html" class="home-icon">
-    <img src="../images/sunflower-outline.svg" alt="Home">
-  </a>
   <article>
     <header>
-      <a href="../index.html" class="back">← Back</a>
+      <div class="article-header-row">
+        <a href="../index.html" class="back">← Back</a>
+        <a href="../index.html" class="home-icon" aria-label="Home">
+          <img src="../images/sunflower-outline.svg" alt="">
+        </a>
+      </div>
       <h1>Reverse engineering Lyft bikes for fun (and profit)</h1>
       <time datetime="2026-01-15">January 2026</time>
     </header>
 
-    <p>This is the <strong>opening paragraph</strong> with some <em>italic text</em> and a <a href="https://example.com">link to somewhere</a>. It sets the stage for what's to come.</p>
+    <p>This is the <strong>opening paragraph</strong> with some <em>italic text</em> and a <a href="https://example.com">link to somewhere</a><sup id="fnref-1"><a class="footnote-ref" href="#fn-1" aria-label="Footnote 1">1</a></sup>. It sets the stage for what's to come.</p>
 
     <h2>The Discovery</h2>
 
-    <p>I was curious about how Lyft's bike-sharing system worked under the hood. What started as idle curiosity turned into a deep dive into their API.</p>
+    <p>I was curious about how Lyft's bike-sharing system worked under the hood. What started as idle curiosity turned into a deep dive into their API<sup id="fnref-2"><a class="footnote-ref" href="#fn-2" aria-label="Footnote 2">2</a></sup>.</p>
 
     <p>Here's what I found when I started poking around:</p>
 
@@ -39,7 +41,7 @@
 
     <h2>Technical Deep Dive</h2>
 
-    <p>The first thing I did was inspect the network traffic. You can do this with a simple <code>curl</code> command:</p>
+    <p>The first thing I did was inspect the network traffic. You can do this with a simple <code>curl</code> command<sup id="fnref-3"><a class="footnote-ref" href="#fn-3" aria-label="Footnote 3">3</a></sup>:</p>
 
     <pre><code>curl -X GET "https://api.example.com/bikes" \
   -H "Authorization: Bearer $TOKEN" \
@@ -103,8 +105,24 @@ print(f"Found {len(bikes)} bikes nearby")</code></pre>
 
     <hr>
 
+    <section class="footnotes" aria-label="Footnotes">
+      <ol>
+        <li id="fn-1">
+          This post uses placeholder links and sample endpoints for readability.
+          <a class="footnote-backref" href="#fnref-1" aria-label="Back to reference 1">↩</a>
+        </li>
+        <li id="fn-2">
+          Details that could identify real users, devices, or tokens are intentionally omitted.
+          <a class="footnote-backref" href="#fnref-2" aria-label="Back to reference 2">↩</a>
+        </li>
+        <li id="fn-3">
+          Always prefer read-only exploration (and respect terms, laws, and rate limits).
+          <a class="footnote-backref" href="#fnref-3" aria-label="Back to reference 3">↩</a>
+        </li>
+      </ol>
+    </section>
+
     <p>If you found this interesting, you might also enjoy my post on <a href="#">building a Bayesian Liar's Dice AI</a>. Or follow me on <a href="https://twitter.com/ilanbigio">Twitter</a> where I post about this kind of stuff.</p>
-    <iframe src="https://ilanbigio.substack.com/embed" width="480" height="150" style="border:1px solid #EEE; background:white;" frameborder="0" scrolling="no"></iframe>
   </article>
 </body>
 </html>
