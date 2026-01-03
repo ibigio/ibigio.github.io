@@ -168,8 +168,9 @@
       }
     }
 
-    const imgEl = headerEl.querySelector('img');
-    if (imgEl && !excludeEls.has(imgEl) && obstacles.length < MAX_WORD_BODIES) {
+    const imgEls = Array.from(headerEl.querySelectorAll('img'));
+    for (const imgEl of imgEls) {
+      if (!imgEl || excludeEls.has(imgEl) || obstacles.length >= MAX_WORD_BODIES) continue;
       const rect = toDocRect(imgEl.getBoundingClientRect());
       obstacles.push(rectToBody(Bodies, rect, staticBodyOptions));
     }
