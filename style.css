@@ -165,10 +165,6 @@ li {
 }
 
 @media (max-width: 1000px) {
-  :root {
-    --profile-photo-size: 280px;
-  }
-
   body {
     overflow-x: hidden;
     overflow-x: clip;
@@ -178,14 +174,11 @@ li {
     flex-direction: column;
     align-items: center;
     gap: 1.5rem;
+    margin-bottom: 3rem;
   }
 
   .header-image {
     order: -1;
-  }
-
-  .header-content {
-    text-align: center;
   }
 
   h1.greeting {
@@ -199,6 +192,7 @@ li {
   header nav {
     justify-content: center;
     flex-wrap: wrap;
+    margin-top: 3rem;
   }
 
   section {
