@@ -12,18 +12,12 @@
     const link = getFaviconLink();
     if (!link) return;
 
-    const theme = mql?.matches ? 'dark' : 'light';
-
-    const baseHref = link.dataset.baseHref || link.getAttribute('href') || '';
-    if (!baseHref) return;
-    if (!link.dataset.baseHref) link.dataset.baseHref = baseHref;
-
-    const url = new URL(baseHref, window.location.href);
-    url.searchParams.set('theme', theme);
+    const isDark = mql?.matches;
+    const faviconPath = isDark ? '/images/tree-outline-white.svg' : '/images/tree.svg';
 
     // Replace node to encourage browsers to re-render the favicon.
     const next = link.cloneNode(false);
-    next.setAttribute('href', url.toString());
+    next.setAttribute('href', faviconPath);
     link.parentNode?.replaceChild(next, link);
   }
 

