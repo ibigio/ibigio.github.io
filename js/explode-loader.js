@@ -2,7 +2,10 @@
   const wordEl = document.querySelector('.explode-word[data-explode-word]');
   if (!wordEl) return;
 
-  wordEl.dataset.explodeReady = '0';
+  // Keep default load cost near-zero: don't load Matter (or do any layout-heavy
+  // work) until the user actually triggers the easter egg.
+  wordEl.dataset.explodeReady = '1';
+  wordEl.classList.add('explode-ready');
 
   const loadScript = (src) =>
     new Promise((resolve, reject) => {
@@ -14,32 +17,30 @@
       document.head.appendChild(script);
     });
 
-  const scheduleIdle = (fn) => {
-    if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(() => fn(), { timeout: 1500 });
-      return;
-    }
-    setTimeout(fn, 500);
-  };
-
-  const init = async () => {
-    try {
+  let loadPromise = null;
+  const ensureLoaded = async () => {
+    if (loadPromise) return loadPromise;
+    loadPromise = (async () => {
       await loadScript('vendor/matter.min.js');
       await loadScript('js/explode.js');
-      if (typeof window.initExplodeWord === 'function') {
-        window.initExplodeWord();
+    })();
+    return loadPromise;
+  };
+
+  const trigger = async () => {
+    try {
+      if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) return;
+      if (wordEl.dataset.exploded === '1') return;
+
+      await ensureLoaded();
+      if (typeof window.triggerExplodeWord === 'function') {
+        window.triggerExplodeWord(wordEl);
       }
     } catch {
       // If this fails, the word simply won't explode.
     }
   };
 
-  window.addEventListener(
-    'load',
-    () => {
-      scheduleIdle(init);
-    },
-    { once: true }
-  );
+  wordEl.addEventListener('mouseenter', () => void trigger(), { passive: true });
+  wordEl.addEventListener('touchstart', () => void trigger(), { passive: true });
 })();
-

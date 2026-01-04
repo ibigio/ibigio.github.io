@@ -9,6 +9,46 @@
     }
   })();
 
+  let activeRun = null;
+  let runSeq = 0;
+  let resizeHandlerBound = false;
+  let resizeTimer = null;
+
+  const cleanupRun = ({ rearm } = {}) => {
+    if (resizeTimer) {
+      clearTimeout(resizeTimer);
+      resizeTimer = null;
+    }
+
+    const run = activeRun;
+    activeRun = null;
+    runSeq += 1;
+
+    if (run?.rafId) cancelAnimationFrame(run.rafId);
+    run?.overlay?.remove?.();
+
+    if (rearm && run?.wordEl) {
+      run.wordEl.dataset.exploded = '0';
+      run.wordEl.classList.remove('exploded');
+      run.wordEl.style.pointerEvents = '';
+    }
+  };
+
+  const ensureResizeHandler = () => {
+    if (resizeHandlerBound) return;
+    resizeHandlerBound = true;
+
+    const scheduleReset = () => {
+      // Only do work if the simulation is (or was) active.
+      if (!activeRun || activeRun.wordEl?.dataset?.exploded !== '1') return;
+      if (resizeTimer) clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => cleanupRun({ rearm: true }), 150);
+    };
+
+    window.addEventListener('resize', scheduleReset, { passive: true });
+    window.addEventListener('orientationchange', scheduleReset, { passive: true });
+  };
+
   const getTextNode = (el) => {
     for (const node of el.childNodes) {
       if (node.nodeType === Node.TEXT_NODE) return node;
@@ -20,6 +60,188 @@
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
     return Bodies.rectangle(x, y, Math.max(1, rect.width), Math.max(1, rect.height), options);
+  };
+
+  const hitboxSvgCache = new Map();
+
+  const parseNumberList = (s) =>
+    (s || '')
+      .trim()
+      .split(/[\s,]+/)
+      .map((v) => Number(v))
+      .filter((v) => Number.isFinite(v));
+
+  const parseViewBox = (svgEl) => {
+    const vb = parseNumberList(svgEl.getAttribute('viewBox'));
+    if (vb.length === 4) return { minX: vb[0], minY: vb[1], width: vb[2], height: vb[3] };
+
+    const width = Number(svgEl.getAttribute('width'));
+    const height = Number(svgEl.getAttribute('height'));
+    if (Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0) {
+      return { minX: 0, minY: 0, width, height };
+    }
+    return null;
+  };
+
+  const cross = (o, a, b) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+
+  const convexHull = (points) => {
+    const pts = Array.from(points || []).filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y));
+    if (pts.length <= 3) return pts;
+
+    pts.sort((p, q) => (p.x === q.x ? p.y - q.y : p.x - q.x));
+
+    const lower = [];
+    for (const p of pts) {
+      while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) {
+        lower.pop();
+      }
+      lower.push(p);
+    }
+
+    const upper = [];
+    for (let i = pts.length - 1; i >= 0; i--) {
+      const p = pts[i];
+      while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) {
+        upper.pop();
+      }
+      upper.push(p);
+    }
+
+    upper.pop();
+    lower.pop();
+    return lower.concat(upper);
+  };
+
+  const polygonArea = (points) => {
+    let sum = 0;
+    for (let i = 0; i < points.length; i++) {
+      const a = points[i];
+      const b = points[(i + 1) % points.length];
+      sum += a.x * b.y - b.x * a.y;
+    }
+    return sum / 2;
+  };
+
+  const maybeClockwise = (points) => {
+    if (points.length < 3) return points;
+    // Matter expects clockwise winding.
+    return polygonArea(points) > 0 ? points.slice().reverse() : points;
+  };
+
+  const getSvgPointsForElement = (el, viewBox) => {
+    const tag = (el.tagName || '').toLowerCase();
+    if (tag === 'polygon' || tag === 'polyline') {
+      const nums = parseNumberList(el.getAttribute('points'));
+      const points = [];
+      for (let i = 0; i + 1 < nums.length; i += 2) points.push({ x: nums[i], y: nums[i + 1] });
+      return points;
+    }
+
+    if (tag === 'rect') {
+      const x = Number(el.getAttribute('x') || 0);
+      const y = Number(el.getAttribute('y') || 0);
+      const w = Number(el.getAttribute('width') || 0);
+      const h = Number(el.getAttribute('height') || 0);
+      if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) return [];
+      return [
+        { x, y },
+        { x: x + w, y },
+        { x: x + w, y: y + h },
+        { x, y: y + h },
+      ];
+    }
+
+    if (tag === 'circle' || tag === 'ellipse') {
+      const cx = Number(el.getAttribute('cx') || 0);
+      const cy = Number(el.getAttribute('cy') || 0);
+      const rx = tag === 'circle' ? Number(el.getAttribute('r') || 0) : Number(el.getAttribute('rx') || 0);
+      const ry = tag === 'circle' ? Number(el.getAttribute('r') || 0) : Number(el.getAttribute('ry') || 0);
+      if (!Number.isFinite(rx) || !Number.isFinite(ry) || rx <= 0 || ry <= 0) return [];
+      const steps = 16;
+      const points = [];
+      for (let i = 0; i < steps; i++) {
+        const t = (i / steps) * Math.PI * 2;
+        points.push({ x: cx + Math.cos(t) * rx, y: cy + Math.sin(t) * ry });
+      }
+      return points;
+    }
+
+    if (tag === 'path') {
+      // Fallback: sample points along the path, then take a convex hull.
+      let svg;
+      try {
+        const svgNS = 'http://www.w3.org/2000/svg';
+        svg = document.createElementNS(svgNS, 'svg');
+        svg.setAttribute('viewBox', `${viewBox.minX} ${viewBox.minY} ${viewBox.width} ${viewBox.height}`);
+        svg.style.position = 'absolute';
+        svg.style.left = '-99999px';
+        svg.style.top = '0';
+        svg.style.width = '0';
+        svg.style.height = '0';
+        svg.style.overflow = 'hidden';
+
+        const path = document.createElementNS(svgNS, 'path');
+        path.setAttribute('d', el.getAttribute('d') || '');
+        svg.appendChild(path);
+        document.body.appendChild(svg);
+
+        const len = path.getTotalLength?.();
+        if (!Number.isFinite(len) || len <= 0) return [];
+
+        const steps = 32;
+        const pts = [];
+        for (let i = 0; i < steps; i++) {
+          const p = path.getPointAtLength((i / steps) * len);
+          pts.push({ x: p.x, y: p.y });
+        }
+        return pts;
+      } catch {
+        return [];
+      } finally {
+        svg?.remove?.();
+      }
+    }
+
+    return [];
+  };
+
+  const parseHitboxSvg = (svgText) => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(svgText, 'image/svg+xml');
+    const svgEl = doc.querySelector('svg');
+    if (!svgEl) return null;
+    const viewBox = parseViewBox(svgEl);
+    if (!viewBox) return null;
+
+    const shapeEls = Array.from(svgEl.querySelectorAll('polygon,polyline,rect,circle,ellipse,path'));
+    const shapes = [];
+    for (const el of shapeEls) {
+      const pts = getSvgPointsForElement(el, viewBox);
+      if (pts.length < 3) continue;
+      const hull = convexHull(pts);
+      if (hull.length < 3) continue;
+      shapes.push(maybeClockwise(hull));
+    }
+
+    return { viewBox, shapes };
+  };
+
+  const loadHitbox = async (src) => {
+    if (!src) return null;
+    const url = new URL(src, window.location.href).toString();
+    const cached = hitboxSvgCache.get(url);
+    if (cached) return cached;
+
+    const promise = (async () => {
+      const res = await fetch(url, { cache: 'force-cache' });
+      if (!res.ok) return null;
+      const text = await res.text();
+      return parseHitboxSvg(text);
+    })().catch(() => null);
+
+    hitboxSvgCache.set(url, promise);
+    return promise;
   };
 
   const getTextNodes = (rootEl, { excludeWithin } = {}) => {
@@ -133,7 +355,7 @@
     return el;
   };
 
-  const createObstacles = (Matter, headerEl, excludeEls) => {
+  const createObstacles = async (Matter, headerEl, excludeEls) => {
     const { Bodies, Composite } = Matter;
     const obstacles = [];
     const MAX_WORD_BODIES = 300;
@@ -142,6 +364,29 @@
       isStatic: true,
       restitution: 0.2,
       friction: 0.8,
+      frictionStatic: 0.8,
+    };
+
+    const hitboxBodyOptions = {
+      ...staticBodyOptions,
+      restitution: 0.05,
+      friction: 2,
+      frictionStatic: 5,
+    };
+
+    const applyBodyMaterial = (body, options) => {
+      if (!body) return;
+      if (typeof options.friction === 'number') body.friction = options.friction;
+      if (typeof options.frictionStatic === 'number') body.frictionStatic = options.frictionStatic;
+      if (typeof options.restitution === 'number') body.restitution = options.restitution;
+      if (Array.isArray(body.parts)) {
+        for (const part of body.parts) {
+          if (!part) continue;
+          if (typeof options.friction === 'number') part.friction = options.friction;
+          if (typeof options.frictionStatic === 'number') part.frictionStatic = options.frictionStatic;
+          if (typeof options.restitution === 'number') part.restitution = options.restitution;
+        }
+      }
     };
 
     const addWordBodiesForEl = (el, { excludeWithin } = {}) => {
@@ -171,6 +416,39 @@
     const imgEls = Array.from(headerEl.querySelectorAll('img'));
     for (const imgEl of imgEls) {
       if (!imgEl || excludeEls.has(imgEl) || obstacles.length >= MAX_WORD_BODIES) continue;
+
+      const hitboxSrc = imgEl.closest('[data-hitbox-src]')?.getAttribute('data-hitbox-src') || imgEl.getAttribute('data-hitbox-src');
+      if (hitboxSrc) {
+        const hitbox = await loadHitbox(hitboxSrc);
+        if (hitbox && hitbox.shapes.length > 0) {
+          const clientRect = imgEl.getBoundingClientRect();
+          const rect = toDocRect(clientRect);
+          const scale = Math.min(rect.width / hitbox.viewBox.width, rect.height / hitbox.viewBox.height);
+          const offsetX = rect.left + (rect.width - hitbox.viewBox.width * scale) / 2 - hitbox.viewBox.minX * scale;
+          const offsetY = rect.top + (rect.height - hitbox.viewBox.height * scale) / 2 - hitbox.viewBox.minY * scale;
+
+          for (const shape of hitbox.shapes) {
+            if (obstacles.length >= MAX_WORD_BODIES) break;
+            const verts = shape.map((p) => ({ x: offsetX + p.x * scale, y: offsetY + p.y * scale }));
+            let cx = 0;
+            let cy = 0;
+            for (const v of verts) {
+              cx += v.x;
+              cy += v.y;
+            }
+            cx /= verts.length;
+            cy /= verts.length;
+
+            const body = Bodies.fromVertices(cx, cy, verts, hitboxBodyOptions, true);
+            if (body) {
+              applyBodyMaterial(body, hitboxBodyOptions);
+              obstacles.push(body);
+            }
+          }
+          continue;
+        }
+      }
+
       const rect = toDocRect(imgEl.getBoundingClientRect());
       obstacles.push(rectToBody(Bodies, rect, staticBodyOptions));
     }
@@ -200,10 +478,15 @@
     ];
   };
 
-  const explode = (Matter, wordEl) => {
+  const explode = async (Matter, wordEl) => {
     if (wordEl.dataset.exploded === '1') return;
     wordEl.dataset.exploded = '1';
     wordEl.style.pointerEvents = 'none';
+
+    ensureResizeHandler();
+    cleanupRun({ rearm: false });
+
+    const runId = (runSeq += 1);
 
     const textNode = getTextNode(wordEl);
     if (!textNode || typeof textNode.textContent !== 'string') return;
@@ -214,6 +497,8 @@
     if (!headerEl) return;
 
     const overlay = ensureOverlay();
+    activeRun = { id: runId, wordEl, overlay, rafId: null };
+
     const docWidth = document.documentElement.clientWidth;
     const docHeight = Math.max(
       document.body.scrollHeight,
@@ -235,7 +520,8 @@
     const { Composite, Bodies, Body } = Matter;
     const world = engine.world;
 
-    const { obstacles } = createObstacles(Matter, headerEl, excludeEls);
+    const { obstacles } = await createObstacles(Matter, headerEl, excludeEls);
+    if (!activeRun || activeRun.id !== runId) return;
     Composite.add(world, obstacles);
     Composite.add(world, createBounds(Matter, docWidth, docHeight));
 
@@ -257,6 +543,7 @@
     const bodies = [];
 
     for (let i = 0; i < text.length; i++) {
+      if (!activeRun || activeRun.id !== runId) return;
       const range = document.createRange();
       range.setStart(textNode, i);
       range.setEnd(textNode, i + 1);
@@ -366,24 +653,18 @@
         simulationStopped = true;
         return;
       }
-      requestAnimationFrame(tick);
+      if (!activeRun || activeRun.id !== runId) return;
+      activeRun.rafId = requestAnimationFrame(tick);
     };
 
-    requestAnimationFrame(tick);
+    if (!activeRun || activeRun.id !== runId) return;
+    activeRun.rafId = requestAnimationFrame(tick);
   };
 
-  window.initExplodeWord = () => {
+  window.triggerExplodeWord = (wordEl) => {
     if (!window.Matter) return;
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) return;
-
-    const wordEl = document.querySelector(WORD_SELECTOR);
     if (!wordEl) return;
-
-    wordEl.dataset.explodeReady = '1';
-    wordEl.classList.add('explode-ready');
-
-    const handler = () => explode(window.Matter, wordEl);
-    wordEl.addEventListener('mouseenter', handler, { once: true });
-    wordEl.addEventListener('touchstart', handler, { once: true, passive: true });
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) return;
+    void explode(window.Matter, wordEl);
   };
 })();

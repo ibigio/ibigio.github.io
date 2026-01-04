@@ -27,7 +27,7 @@ I learned a ton, so I'm sharing the journey in case you may too.
 
 Back in 2018 Lyft Bikes (BayWheels) used to be [Ford GoBikes](https://automotive.lulop.com/en_EN/post/show/131501/ford-gobike-launching-in-bay-a.html), and used to be unlocked on a per-station basis. You'd generate a temporary code for a specific station on your app, then punch it into that station which would release a random bike.
 
-<img src="/images/blog/lyft-bikes/ford-gobikes.webp" alt="Ford GoBikes" style="border-radius: 4px">
+<img src="/images/blog/lyft-bikes/ford-gobikes.webp" alt="Ford GoBikes" style="border-radius: 8px">
 
 My goal was to make sure nobody could take a bike while I was on-route to the station, so what if I just kept manually generating codes until I arrived? Maybe that might block others from doing so. So I tried it. No luck. Generating a code didn't block others, and that was the only way to unlock bikes. Welp, nothing left to try...
 
