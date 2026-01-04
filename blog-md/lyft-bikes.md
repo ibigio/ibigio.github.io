@@ -16,12 +16,20 @@ One cold San Francisco summer morning in Haight-Ashbury, my commute down to Mark
 
 I learned a ton, so I'm sharing the journey in case you may too.
 
-[Skip to technical summary →](https://www.notion.so/Reverse-engineering-lyft-bikes-for-fun-and-profit-2db9f6a8122080049bd3e61b3238f00e?pvs=21)
+[Skip to technical summary →](#technical-summary)
 
-> **Disclaimer:** This writeup is meant for education purposes only. Any vulnerabilities were disclosed and patched in 2018.
+> **Disclaimer:** This writeup is meant for education purposes only. Vulnerabilities discussed were disclosed to and patched by Lyft in 2018.
 > 
 
 ## Table Of Contents
+
+- [The Acquisition](#the-acquisition)
+- [Intercepting iOS App Requests](#intercepting-ios-app-requests)
+- [Spoofing SSL Root Certificate Authorities](#spoofing-ssl-root-certificate-authorities)
+- [Anatomy of a Lyft Request](#anatomy-of-a-lyft-request)
+- [I Promise it's not a Denial of Service Attack](#i-promise-its-not-a-denial-of-service-attack)
+- [The Good Days](#the-good-days)
+- [Man on the Inside](#man-on-the-inside)
 
 ## The Acquisition
 
@@ -54,7 +62,7 @@ Now my traffic was being forwarded to Charles Proxy and huzzah! I could see all 
 
 ## Spoofing SSL Root Certificate Authorities
 
-SSL ensures traffic from the Lyft app is encrypted using the `lyft.com` public key, so only `lyft.com` can decrypt it [^1](https://www.notion.so/ilanbigio/Simplification.). All modern applications & websites do this, and you can find the public key on a website's [SSL certificate](https://www.notion.so/Reverse-engineering-lyft-bikes-for-fun-and-profit-2db9f6a8122080049bd3e61b3238f00e?pvs=21).
+SSL ensures traffic from the Lyft app is encrypted using the `lyft.com` public key, so only `lyft.com` can decrypt it[^1]. All modern applications & websites do this, and you can find the public key on a website's [SSL certificate](https://www.notion.so/Reverse-engineering-lyft-bikes-for-fun-and-profit-2db9f6a8122080049bd3e61b3238f00e?pvs=21).
 
 <picture>
   <source srcset="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.12.36_PM.png" media="(prefers-color-scheme: dark)">
@@ -124,13 +132,13 @@ data={
 requests.post(url, headers=headers, json=data)
 ```
 
-Sweet, now I just needed a real `bike_id` to test it on. It was very late at night [^2] but I was excited, so out I went with my PJs, flip flops, and laptop to squat by my target bike. I found its ID, entered it into my script, hit run, and holy shit it worked. The bike unlocked. I re-locked it, ran back to my apartment, hit run again, ran back, and there she was. Unlocked, and inconspicuously so. Nobody would think to take it… but me.
+Sweet, now I just needed a real `bike_id` to test it on. It was very late at night[^2] but I was excited, so out I went with my PJs, flip flops, and laptop to squat by my target bike. I found its ID, entered it into my script, hit run, and holy shit it worked. The bike unlocked. I re-locked it, ran back to my apartment, hit run again, ran back, and there she was. Unlocked, and inconspicuously so. Nobody would think to take it… but me.
 
 We’re in business.
 
 ## I Promise it’s not a Denial of Service Attack
 
-Except… the bike IDs are only printed on the bikes. How would I know what `bike_id` to use without going to the station? Maybe some other request Charles captured might have all the bike IDs at a station? Short answer – no. Two days of digging through captured traffic yielded no way to fetch bike IDs. [^3]
+Except… the bike IDs are only printed on the bikes. How would I know what `bike_id` to use without going to the station? Maybe some other request Charles captured might have all the bike IDs at a station? Short answer – no. Two days of digging through captured traffic yielded no way to fetch bike IDs.[^3]
 
 After considering many fruitless ideas, like hiding a little camera pointed at the bikes and using OCR, I thought… could I just try all IDs? Five digits, that’s 100,000 combinations… and thinking back, I had only seen IDs between `10000` and `20000`. 10,000 loop iterations is not *that* many for python!
 
@@ -203,7 +211,7 @@ But as days passed by, and I played with unlocking different bikes I noticed a p
 - bounty
 - lyft intern party
 
-# Technical Breakdown
+# Technical Summary
 
 Breakdown
 
@@ -213,7 +221,9 @@ Breakdown
 
 # Dump
 
-a sight I had been dreading: an empty Lyft Bike station. I had checked the app at 8:24am, there had been two bikes there. Yet when I arrived five minutes later, they were gone. Snagged before I arrived. [^1](https://www.notion.so/ilanbigio/Simplification.)
+a sight I had been dreading: an empty Lyft Bike station. I had checked the app at 8:24am, there had been two bikes there. Yet when I arrived five minutes later, they were gone. Snagged before I arrived.
+
+[^1]: Simplification.
 
 [^2]: 10:30pm in San Francisco.
 

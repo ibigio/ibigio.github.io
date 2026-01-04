@@ -23,7 +23,7 @@ body {
   line-height: 1.6;
   color: var(--text);
   background: var(--bg);
-  padding: 3rem 1.5rem 3rem;
+  padding: 5rem 1.5rem 3rem;
   max-width: 720px;
   margin: 0 auto;
 }
@@ -110,6 +110,7 @@ header {
   height: var(--profile-photo-size);
   border-radius: 4px;
   object-fit: cover;
+  overflow: hidden;
 }
 
 .profile-photo img {
@@ -117,6 +118,10 @@ header {
   height: var(--profile-photo-size);
   display: block;
   object-fit: contain;
+}
+
+.profile-photo img[src*="profile.jpg"] {
+  object-fit: cover;
 }
 
 .illustration-icon {
@@ -191,6 +196,7 @@ li {
   body {
     overflow-x: hidden;
     overflow-x: clip;
+    padding-top: 3rem;
   }
 
   header {
@@ -249,7 +255,7 @@ li {
 
 .home-icon {
   position: fixed;
-  top: 0.75rem;
+  top: 0.25rem;
   right: 1.5rem;
   width: 64px;
   height: 64px;
@@ -334,7 +340,7 @@ article img {
 }
 
 article h2 {
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   margin-top: 2rem;
   margin-bottom: 0.75rem;
 }
