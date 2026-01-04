@@ -154,6 +154,13 @@ section h2 {
   width: 120px;
 }
 
+.section-more {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  width: 60px;
+}
+
 ul {
   list-style: disc;
   padding-left: 1.25rem;
@@ -205,6 +212,13 @@ li {
     width: auto;
     margin-right: 0;
     margin-bottom: 0.5rem;
+    display: inline-block;
+  }
+
+  .section-more {
+    position: static;
+    float: right;
+    width: auto;
   }
 }
 
