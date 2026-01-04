@@ -105,10 +105,18 @@ header {
 }
 
 .profile-photo {
+  display: block;
   width: var(--profile-photo-size);
   height: var(--profile-photo-size);
   border-radius: 4px;
   object-fit: cover;
+}
+
+.profile-photo img {
+  width: var(--profile-photo-size);
+  height: var(--profile-photo-size);
+  display: block;
+  object-fit: contain;
 }
 
 .illustration-icon {
