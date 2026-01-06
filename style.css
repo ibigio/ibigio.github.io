@@ -241,12 +241,10 @@ li {
     float: right;
     width: auto;
   }
-}
 
-/* Mobile landscape - scale all text proportionally for readability */
-@media (max-width: 1000px) and (orientation: landscape) {
-  body {
-    font-size: 18px;
+  /* Allow Safari to boost all text in landscape, including headers */
+  section h2 {
+    display: block;
   }
 }
 
