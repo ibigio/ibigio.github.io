@@ -189,7 +189,6 @@ ul {
 
 li {
   margin-bottom: 0.5rem;
-  color: var(--muted);
 }
 
 @media (max-width: 1000px) {
@@ -362,7 +361,6 @@ article ol { list-style: decimal; }
 
 article li {
   margin-bottom: 0.25rem;
-  color: var(--text);
 }
 
 code {
