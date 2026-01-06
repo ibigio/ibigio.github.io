@@ -26,8 +26,6 @@ body {
   padding: 5rem 1.5rem 3rem;
   max-width: 720px;
   margin: 0 auto;
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
 }
 
 a {
@@ -242,6 +240,13 @@ li {
     position: static;
     float: right;
     width: auto;
+  }
+}
+
+/* Mobile landscape - scale all text proportionally for readability */
+@media (max-width: 1000px) and (orientation: landscape) {
+  body {
+    font-size: 18px;
   }
 }
 
