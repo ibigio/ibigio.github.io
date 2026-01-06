@@ -153,9 +153,8 @@ h1.greeting {
   max-width: 460px;
 }
 
-header nav {
-  display: flex;
-  gap: 1rem;
+header nav a + a {
+  margin-left: 1rem;
 }
 
 /* Sections */
@@ -218,15 +217,8 @@ li {
   }
 
   header nav {
-    justify-content: center;
-    flex-wrap: wrap;
     margin-top: 3rem;
-  }
-
-  /* Allow Safari to boost nav link text */
-  header nav a {
-    display: inline-block;
-    max-width: 100%;
+    text-align: center;
   }
 
   section {
@@ -239,18 +231,13 @@ li {
     width: auto;
     margin-right: 0;
     margin-bottom: 0.5rem;
-    display: inline-block;
+    display: block;
   }
 
   .section-more {
     position: static;
     float: right;
     width: auto;
-  }
-
-  /* Allow Safari to boost all text in landscape, including headers */
-  section h2 {
-    display: block;
   }
 }
 
