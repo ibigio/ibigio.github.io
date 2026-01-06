@@ -174,11 +174,17 @@ section h2 {
   width: 120px;
 }
 
-.section-more {
+.posts-more {
   position: absolute;
-  left: 100%;
+  right: 0;
   top: 0;
-  width: 60px;
+  width: auto;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.posts ul {
+  padding-right: 6rem;
 }
 
 ul {
@@ -234,10 +240,30 @@ li {
     display: block;
   }
 
-  .section-more {
+  .posts {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 1rem;
+  }
+
+  .posts > h2 {
+    margin-bottom: 0;
+  }
+
+  .posts > ul {
+    grid-column: 1 / -1;
+    margin-top: 0.5rem;
+  }
+
+  .posts-more {
     position: static;
-    float: right;
     width: auto;
+    text-align: right;
+    margin-top: 0;
+  }
+
+  .posts ul {
+    padding-right: 0;
   }
 }
 
