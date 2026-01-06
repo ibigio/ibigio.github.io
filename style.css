@@ -223,6 +223,12 @@ li {
     margin-top: 3rem;
   }
 
+  /* Allow Safari to boost nav link text */
+  header nav a {
+    display: inline-block;
+    max-width: 100%;
+  }
+
   section {
     position: static;
   }
