@@ -41,6 +41,9 @@
     const scheduleReset = () => {
       // Only do work if the simulation is (or was) active.
       if (!activeRun || activeRun.wordEl?.dataset?.exploded !== '1') return;
+      const viewportWidth = document.documentElement.clientWidth;
+      if (typeof activeRun.viewportWidth === 'number' && viewportWidth === activeRun.viewportWidth) return;
+      activeRun.viewportWidth = viewportWidth;
       if (resizeTimer) clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => cleanupRun({ rearm: true }), 150);
     };
@@ -497,9 +500,8 @@
     if (!headerEl) return;
 
     const overlay = ensureOverlay();
-    activeRun = { id: runId, wordEl, overlay, rafId: null };
-
     const docWidth = document.documentElement.clientWidth;
+    activeRun = { id: runId, wordEl, overlay, rafId: null, viewportWidth: docWidth };
     const docHeight = Math.max(
       document.body.scrollHeight,
       document.documentElement.scrollHeight,
