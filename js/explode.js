@@ -390,6 +390,7 @@
   const createObstacles = async (Matter, headerEl, excludeEls) => {
     const { Bodies, Composite } = Matter;
     const obstacles = [];
+    const treeBodies = [];
     const MAX_WORD_BODIES = 300;
 
     const staticBodyOptions = {
@@ -449,6 +450,11 @@
     for (const imgEl of imgEls) {
       if (!imgEl || excludeEls.has(imgEl) || obstacles.length >= MAX_WORD_BODIES) continue;
 
+      const isTree =
+        (imgEl.getAttribute('alt') || '').trim().toLowerCase() === 'tree' ||
+        Boolean(imgEl.closest('.profile-photo')) ||
+        Boolean(imgEl.closest('[data-hitbox-src*="tree-hitbox"]'));
+
       const hitboxSrc = imgEl.closest('[data-hitbox-src]')?.getAttribute('data-hitbox-src') || imgEl.getAttribute('data-hitbox-src');
       if (hitboxSrc) {
         const hitbox = await loadHitbox(hitboxSrc);
@@ -474,6 +480,7 @@
             const body = Bodies.fromVertices(cx, cy, verts, hitboxBodyOptions, true);
             if (body) {
               applyBodyMaterial(body, hitboxBodyOptions);
+              if (isTree) treeBodies.push(body);
               obstacles.push(body);
             }
           }
@@ -482,12 +489,14 @@
       }
 
       const rect = toDocRect(imgEl.getBoundingClientRect());
-      obstacles.push(rectToBody(Bodies, rect, staticBodyOptions));
+      const body = rectToBody(Bodies, rect, staticBodyOptions);
+      if (isTree) treeBodies.push(body);
+      obstacles.push(body);
     }
 
     const world = Composite.create();
     Composite.add(world, obstacles);
-    return { world, obstacles };
+    return { world, obstacles, treeBodies };
   };
 
   const createBounds = (Matter, docWidth, docHeight) => {
@@ -551,7 +560,7 @@
     const { Composite, Bodies, Body } = Matter;
     const world = engine.world;
 
-    const { obstacles } = await createObstacles(Matter, headerEl, excludeEls);
+    const { obstacles, treeBodies } = await createObstacles(Matter, headerEl, excludeEls);
     if (!activeRun || activeRun.id !== runId) return;
     Composite.add(world, obstacles);
     Composite.add(world, createBounds(Matter, docWidth, docHeight));
@@ -629,6 +638,10 @@
     let lastT = performance.now();
     let settledFrames = 0;
     let simulationStopped = false;
+    let easterEggTriggered = false;
+    const easterEggUrl = 'https://arcade.gamesalad.com/games/127648';
+    const easterEggHoldMs = 1500;
+    const onTreeMs = new Array(bodies.length).fill(0);
 
     const render = () => {
       for (let i = 0; i < bodies.length; i++) {
@@ -667,6 +680,23 @@
 
       Matter.Engine.update(engine, dt);
 
+      if (!easterEggTriggered && Array.isArray(treeBodies) && treeBodies.length > 0) {
+        let anyOnTreeLongEnough = false;
+        for (let i = 0; i < bodies.length; i++) {
+          const body = bodies[i];
+          if (!body) continue;
+          const touchingTree = body.isSleeping && Matter.Query.collides(body, treeBodies).length > 0;
+          if (touchingTree) onTreeMs[i] += dt;
+          else onTreeMs[i] = 0;
+          if (onTreeMs[i] >= easterEggHoldMs) anyOnTreeLongEnough = true;
+        }
+        if (anyOnTreeLongEnough) {
+          easterEggTriggered = true;
+          window.location.assign(easterEggUrl);
+          return;
+        }
+      }
+
       let allSleeping = true;
       for (let i = 0; i < bodies.length; i++) {
         const body = bodies[i];
@@ -680,7 +710,8 @@
       if (allSleeping) settledFrames += 1;
       else settledFrames = 0;
 
-      if (settledFrames > 30) {
+      const settleFrameLimit = Array.isArray(treeBodies) && treeBodies.length > 0 ? 240 : 30;
+      if (settledFrames > settleFrameLimit) {
         simulationStopped = true;
         return;
       }
