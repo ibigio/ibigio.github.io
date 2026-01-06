@@ -14,6 +14,18 @@
   let resizeHandlerBound = false;
   let resizeTimer = null;
 
+  const getViewportState = () => {
+    const el = document.documentElement;
+    const width = el?.clientWidth ?? 0;
+    const height = el?.clientHeight ?? 0;
+    const dpr = typeof window.devicePixelRatio === 'number' ? window.devicePixelRatio : 1;
+    const orientation =
+      typeof window.matchMedia === 'function' && window.matchMedia('(orientation: portrait)').matches
+        ? 'portrait'
+        : 'landscape';
+    return { width, height, dpr, orientation };
+  };
+
   const cleanupRun = ({ rearm } = {}) => {
     if (resizeTimer) {
       clearTimeout(resizeTimer);
@@ -38,13 +50,30 @@
     if (resizeHandlerBound) return;
     resizeHandlerBound = true;
 
-    const scheduleReset = () => {
+    const scheduleReset = (event) => {
       // Only do work if the simulation is (or was) active.
       if (!activeRun || activeRun.wordEl?.dataset?.exploded !== '1') return;
-      const viewportWidth = document.documentElement.clientWidth;
-      if (typeof activeRun.viewportWidth === 'number' && viewportWidth === activeRun.viewportWidth) return;
-      activeRun.viewportWidth = viewportWidth;
+
+      const next = getViewportState();
+      const prev = activeRun.viewportState;
+      activeRun.viewportState = next;
+
+      if (prev) {
+        if (event?.type !== 'orientationchange') {
+          const widthDelta = Math.abs(next.width - prev.width);
+          const dprDelta = Math.abs(next.dpr - prev.dpr);
+          const orientationChanged = next.orientation !== prev.orientation;
+
+          // iOS Safari can fire spurious resize events during aggressive scroll;
+          // ignore unless the viewport meaningfully changed.
+          const significantWidthChange = widthDelta >= 20;
+          const significantDprChange = dprDelta >= 0.05;
+          if (!orientationChanged && !significantWidthChange && !significantDprChange) return;
+        }
+      }
+
       if (resizeTimer) clearTimeout(resizeTimer);
+      if (DEBUG) console.log('[explode] reset', { eventType: event?.type, prev, next });
       resizeTimer = setTimeout(() => cleanupRun({ rearm: true }), 150);
     };
 
@@ -501,7 +530,7 @@
 
     const overlay = ensureOverlay();
     const docWidth = document.documentElement.clientWidth;
-    activeRun = { id: runId, wordEl, overlay, rafId: null, viewportWidth: docWidth };
+    activeRun = { id: runId, wordEl, overlay, rafId: null, viewportState: getViewportState() };
     const docHeight = Math.max(
       document.body.scrollHeight,
       document.documentElement.scrollHeight,
