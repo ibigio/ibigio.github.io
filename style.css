@@ -46,6 +46,56 @@ a:hover {
   color: transparent;
 }
 
+/* Easter egg firework (Matter-rendered) */
+.explode-firework-underlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.explode-easter-egg-link {
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  transform: translate(-50%, -100%);
+  z-index: 3;
+}
+
+
+.explode-firework-particle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: hsl(var(--hue, 18) 42% 42%);
+  pointer-events: none;
+}
+
+.explode-firework-particle--rocket {
+  width: 4px;
+  height: 4px;
+}
+
+.explode-firework-trail {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: hsla(var(--hue, 18) 45% 45% / 0.55);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: explode-trail 280ms linear forwards;
+}
+
+@keyframes explode-trail {
+  0% { opacity: 0.75; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.25); }
+}
+
 #explode-overlay {
   position: absolute;
   top: 0;
@@ -106,6 +156,8 @@ header {
 
 .profile-photo {
   display: block;
+  position: relative;
+  z-index: 1;
   width: var(--profile-photo-size);
   height: var(--profile-photo-size);
   border-radius: 4px;

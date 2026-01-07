@@ -38,6 +38,8 @@
 
     if (run?.rafId) cancelAnimationFrame(run.rafId);
     run?.overlay?.remove?.();
+    run?.fireworkContainer?.remove?.();
+    run?.playLinkEl?.remove?.();
 
     if (rearm && run?.wordEl) {
       run.wordEl.dataset.exploded = '0';
@@ -402,9 +404,9 @@
 
     const hitboxBodyOptions = {
       ...staticBodyOptions,
-      restitution: 0.05,
-      friction: 2,
-      frictionStatic: 5,
+      restitution: 0.01,
+      friction: 2.5,
+      frictionStatic: 6,
     };
 
     const applyBodyMaterial = (body, options) => {
@@ -639,9 +641,200 @@
     let settledFrames = 0;
     let simulationStopped = false;
     let easterEggTriggered = false;
-    const easterEggUrl = 'https://arcade.gamesalad.com/games/127648';
     const easterEggHoldMs = 1500;
     const onTreeMs = new Array(bodies.length).fill(0);
+    const easterEgg = (() => {
+      const playUrl = 'https://arcade.gamesalad.com/games/127648';
+      const delayBeforeFireworkMs = 150;
+      const delayAfterFireworkMs = 1200;
+
+      const getFireworkState = () => activeRun?.firework;
+      const isActive = () => Boolean(getFireworkState()?.active);
+
+      const getContainer = () => {
+        if (!activeRun || activeRun.id !== runId) return null;
+        if (activeRun.fireworkContainer) return activeRun.fireworkContainer;
+        const host = headerEl.querySelector('.header-image') || headerEl;
+        const el = document.createElement('div');
+        el.className = 'explode-firework-underlay';
+        host.appendChild(el);
+        activeRun.fireworkContainer = el;
+        return el;
+      };
+
+      const triggerFirework = () => {
+        if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) return Promise.resolve();
+        if (!activeRun || activeRun.id !== runId) return Promise.resolve();
+
+        const imgEl =
+          headerEl.querySelector('.profile-photo img[alt="Tree"], .profile-photo img') || headerEl.querySelector('img[alt="Tree"]');
+        if (!imgEl) return Promise.resolve();
+
+        const existing = getFireworkState();
+        if (existing?.active) return existing.donePromise || Promise.resolve();
+
+        const containerEl = getContainer();
+        if (!containerEl) return Promise.resolve();
+        containerEl.textContent = '';
+
+        const rect = toDocRect(imgEl.getBoundingClientRect());
+        const startX = rect.left + rect.width / 2;
+        const startY = rect.top + rect.height * 0.55;
+
+        let resolveDone = null;
+        const donePromise = new Promise((resolve) => {
+          resolveDone = resolve;
+        });
+
+        const state = {
+          active: true,
+          phase: 'rocket',
+          hue: 18, // rust
+          bodies: [],
+          els: [],
+          lastTrailMs: 0,
+          prevVy: null,
+          containerEl,
+          donePromise,
+          resolveDone,
+        };
+        activeRun.firework = state;
+
+        const rocket = Bodies.circle(startX, startY, 3.5, {
+          frictionAir: 0.012,
+          restitution: 0,
+          collisionFilter: { group: -1, category: 0x0002, mask: 0 },
+        });
+        Body.setVelocity(rocket, { x: (Math.random() - 0.5) * 0.54, y: -3.6 });
+        Composite.add(world, rocket);
+        state.bodies.push(rocket);
+
+        const rocketEl = document.createElement('span');
+        rocketEl.className = 'explode-firework-particle explode-firework-particle--rocket';
+        rocketEl.style.setProperty('--hue', `${state.hue.toFixed(1)}`);
+        containerEl.appendChild(rocketEl);
+        state.els.push(rocketEl);
+
+        return donePromise;
+      };
+
+      const showPlayLink = () => {
+        if (!activeRun || activeRun.id !== runId) return;
+        if (activeRun.playLinkEl) return;
+        const host = headerEl.querySelector('.header-image') || headerEl;
+        const link = document.createElement('a');
+        link.className = 'explode-easter-egg-link';
+        link.href = playUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = '→';
+        host.appendChild(link);
+        activeRun.playLinkEl = link;
+      };
+
+      const trigger = () => {
+        if (easterEggTriggered) return;
+        easterEggTriggered = true;
+        window.setTimeout(() => {
+          triggerFirework().then(() => window.setTimeout(showPlayLink, delayAfterFireworkMs));
+        }, delayBeforeFireworkMs);
+      };
+
+      const beforeUpdate = () => {
+        const fw = getFireworkState();
+        if (!fw?.active || !fw.bodies?.length) return;
+        const g = (engine.gravity?.y ?? 0) * (engine.gravity?.scale ?? 0);
+        if (!g) return;
+        const gravityReduction = 0.9;
+        for (const b of fw.bodies) {
+          if (!b) continue;
+          Body.applyForce(b, b.position, { x: 0, y: -b.mass * g * gravityReduction });
+        }
+      };
+
+      const render = () => {
+        const fw = getFireworkState();
+        if (!fw?.active || !Array.isArray(fw.bodies) || !Array.isArray(fw.els)) return;
+        const containerRect = fw.containerEl ? toDocRect(fw.containerEl.getBoundingClientRect()) : null;
+        const offX = containerRect?.left ?? 0;
+        const offY = containerRect?.top ?? 0;
+        for (let i = 0; i < fw.bodies.length; i++) {
+          const b = fw.bodies[i];
+          const el = fw.els[i];
+          if (!b || !el) continue;
+          el.style.transform = `translate3d(${b.position.x - offX}px, ${b.position.y - offY}px, 0) translate(-50%, -50%)`;
+        }
+      };
+
+      const afterUpdate = (dt) => {
+        const fw = getFireworkState();
+        if (!fw?.active || !fw.bodies?.length) return;
+
+        const containerRect = fw.containerEl ? toDocRect(fw.containerEl.getBoundingClientRect()) : null;
+        const offX = containerRect?.left ?? 0;
+        const offY = containerRect?.top ?? 0;
+
+        fw.lastTrailMs += dt;
+        if (fw.lastTrailMs >= 24) {
+          fw.lastTrailMs = 0;
+          for (const b of fw.bodies) {
+            if (!b) continue;
+            const dot = document.createElement('span');
+            dot.className = 'explode-firework-trail';
+            dot.style.left = `${b.position.x - offX}px`;
+            dot.style.top = `${b.position.y - offY}px`;
+            dot.style.setProperty('--hue', `${fw.hue.toFixed(1)}`);
+            fw.containerEl.appendChild(dot);
+            window.setTimeout(() => dot.remove(), 280);
+          }
+        }
+
+        if (fw.phase !== 'rocket') return;
+        const rocket = fw.bodies[0];
+        const vy = rocket?.velocity?.y;
+        if (typeof vy !== 'number') return;
+        const prev = fw.prevVy;
+        fw.prevVy = vy;
+        if (!(typeof prev === 'number' && prev < 0 && vy >= 0)) return;
+
+        fw.phase = 'burst';
+        const cx = rocket.position.x;
+        const cy = rocket.position.y;
+        Composite.remove(world, rocket);
+        fw.bodies.splice(0, 1);
+        fw.els.splice(0, 1)[0]?.remove?.();
+
+        for (let i = 0; i < 5; i++) {
+          const angle = (i / 5) * Math.PI * 2 + Math.random() * 0.4;
+          const speed = 3.2 + Math.random() * 1.4;
+          const body = Bodies.circle(cx, cy, 2.5, {
+            frictionAir: 0.06,
+            restitution: 0,
+            collisionFilter: { group: -1, category: 0x0002, mask: 0 },
+          });
+          Body.setVelocity(body, { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed - 1.5 });
+          Composite.add(world, body);
+          fw.bodies.push(body);
+
+          const el = document.createElement('span');
+          el.className = 'explode-firework-particle';
+          el.style.setProperty('--hue', `${fw.hue.toFixed(1)}`);
+          fw.containerEl.appendChild(el);
+          fw.els.push(el);
+        }
+
+        window.setTimeout(() => {
+          const cur = getFireworkState();
+          if (!cur?.active) return;
+          for (const b of cur.bodies) Composite.remove(world, b);
+          for (const el of cur.els) el?.remove?.();
+          cur.active = false;
+          cur.resolveDone?.();
+        }, 450);
+      };
+
+      return { trigger, isActive, beforeUpdate, afterUpdate, render };
+    })();
 
     const render = () => {
       for (let i = 0; i < bodies.length; i++) {
@@ -672,13 +865,19 @@
           el.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) rotate(${body.angle}rad)`;
         }
       }
+
+      easterEgg.render();
     };
 
     const tick = (t) => {
       const dt = Math.min(32, t - lastT);
       lastT = t;
 
+      easterEgg.beforeUpdate();
+
       Matter.Engine.update(engine, dt);
+
+      easterEgg.afterUpdate(dt);
 
       if (!easterEggTriggered && Array.isArray(treeBodies) && treeBodies.length > 0) {
         let anyOnTreeLongEnough = false;
@@ -691,9 +890,7 @@
           if (onTreeMs[i] >= easterEggHoldMs) anyOnTreeLongEnough = true;
         }
         if (anyOnTreeLongEnough) {
-          easterEggTriggered = true;
-          window.location.assign(easterEggUrl);
-          return;
+          easterEgg.trigger();
         }
       }
 
@@ -712,8 +909,10 @@
 
       const settleFrameLimit = Array.isArray(treeBodies) && treeBodies.length > 0 ? 240 : 30;
       if (settledFrames > settleFrameLimit) {
-        simulationStopped = true;
-        return;
+        if (!easterEgg.isActive()) {
+          simulationStopped = true;
+          return;
+        }
       }
       if (!activeRun || activeRun.id !== runId) return;
       activeRun.rafId = requestAnimationFrame(tick);

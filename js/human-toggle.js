@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const humanToggle = document.querySelector('.human-toggle');
   const profilePhoto = document.querySelector('.profile-photo');
   let isShowingPhoto = false;
+  const profilePhotoUrl = 'images/profile.jpg';
 
   // Store original tree sources
   const treeSources = {
@@ -9,13 +10,33 @@ document.addEventListener('DOMContentLoaded', () => {
     light: 'images/tree.svg'
   };
 
+  const prefetchProfilePhoto = () => {
+    const img = new Image();
+    img.decoding = 'async';
+    if ('fetchPriority' in img) img.fetchPriority = 'low';
+    img.src = profilePhotoUrl;
+    if (typeof img.decode === 'function') img.decode().catch(() => {});
+  };
+
+  window.addEventListener(
+    'load',
+    () => {
+      if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(prefetchProfilePhoto, { timeout: 2000 });
+      } else {
+        setTimeout(prefetchProfilePhoto, 0);
+      }
+    },
+    { once: true }
+  );
+
   humanToggle.addEventListener('click', (e) => {
     e.preventDefault();
     isShowingPhoto = !isShowingPhoto;
 
     if (isShowingPhoto) {
       // Show photo
-      profilePhoto.innerHTML = '<img src="images/profile.jpg" alt="Ilan Bigio">';
+      profilePhoto.innerHTML = `<img src="${profilePhotoUrl}" alt="Ilan Bigio">`;
     } else {
       // Show tree
       profilePhoto.innerHTML = `
