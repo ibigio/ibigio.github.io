@@ -336,7 +336,7 @@ li {
 
 .home-icon {
   position: fixed;
-  top: 0.25rem;
+  top: 1.25rem;
   right: 1.5rem;
   width: 64px;
   height: 64px;
@@ -396,6 +396,7 @@ article header time {
   }
 
   .article-header-row {
+    align-items: flex-start;
     margin-bottom: 1.5rem;
   }
 }
@@ -408,7 +409,19 @@ article img {
   max-width: 100%;
   height: auto;
   display: block;
-  margin: 1rem auto;
+  margin: 1.25rem auto;
+}
+
+article img.img-inset {
+  width: 100%;
+}
+
+article img.ssl-cert {
+  width: calc(100% - 2rem);
+  max-width: 420px;
+  border-radius: 4px;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 /* Footnotes */
@@ -503,6 +516,24 @@ blockquote p {
   margin-bottom: 0;
 }
 
+details.details-block {
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin: 2rem 0;
+}
+
+details.details-block > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+details.details-block[open] > summary {
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+}
+
 hr {
   border: none;
   border-top: 1px solid var(--muted);
@@ -519,6 +550,11 @@ em { font-style: italic; }
   padding: 1rem 1.25rem;
   margin: 1.5rem 0;
   background: transparent;
+}
+
+.form-field a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .form-label {

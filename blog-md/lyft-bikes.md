@@ -7,14 +7,7 @@ reading_time: 12 min read
 
 One cold San Francisco summer morning in Haight-Ashbury, my commute down to Market was interrupted by the sight of a lucky duck taking the last Lyft bike – again.
 
-"I should really just wake up 15 minutes earlier", I thought, fleetingly. Then instead proceeded to spend the next month learning
-
-- how to reverse engineer the Lyft Bikes private endpoints,
-- tinkering with wifi proxies and custom SSL certificates to bypass encryption,
-- chasing loose bikes across the city,
-- causing an incident at Lyft,
-- getting flagged,
-- and somehow making a profit.
+"I should really just wake up 15 minutes earlier", I thought, fleetingly. Then instead proceeded to spend the next month reverse engineering Lyft's private API, bypassing SSL encryption, chasing loose bikes across the city, triggering an internal incident, and somehow making a profit.
 
 I learned a ton, so I'm sharing the journey in case you may too.
 
@@ -59,7 +52,11 @@ First I had to forward my phone's traffic to Charles on my laptop. To do this I 
 - `192.168.0.7` is my laptop's local IP which I got by running `ipconfig getifaddr en0`
 - `8888` is the port Charles Proxy is running on
 
-![Screenshot 2026-01-01 at 2.18.19 PM.png](/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.18.19_PM.png)
+
+<picture>
+  <source srcset="/images/blog/lyft-bikes/charles-proxy-routing-white.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/lyft-bikes/charles-proxy-routing-black.png" alt="Normal SSL handshake" class="img-inset">
+</picture>
 
 Now my traffic was being forwarded to Charles Proxy and huzzah! I could see all requests coming out of my phone. But... I can't see the content? Oh, right. SSL encryption. The thing making sure we can trust the internet was getting in my way.
 
@@ -67,18 +64,30 @@ Now my traffic was being forwarded to Charles Proxy and huzzah! I could see all 
 
 SSL ensures traffic from the Lyft app is encrypted using the `lyft.com` public key, so only `lyft.com` can decrypt it[^1]. All modern applications & websites do this, and you can find the public key on a website's [SSL certificate](https://www.notion.so/Reverse-engineering-lyft-bikes-for-fun-and-profit-2db9f6a8122080049bd3e61b3238f00e?pvs=21).
 
+
 <picture>
-  <source srcset="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.12.36_PM.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.12.36_PM.png" alt="SSL Certificate" width="50%">
+  <source srcset="/images/blog/lyft-bikes/ssl-cert-dark.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/lyft-bikes/ssl-cert-light.png" alt="SSL Certificate" class="ssl-cert">
 </picture>
 
 In theory, this means my traffic can't be decrypted once it leaves my phone, even by me. However, Charles has a workaround: by enabling `SSL Proxying`, Charles will prevent the real `lyft.com` SSL certificate from making it back to your phone, and instead sends a new one it generates on the fly.
 
-![Screenshot 2026-01-01 at 2.09.23 PM.png](/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.09.23_PM.png)
+<picture>
+  <source srcset="/images/blog/lyft-bikes/normal-handshake-white.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/lyft-bikes/normal-handshake-black.png" alt="Normal SSL handshake" class="img-inset">
+</picture>
+
+<picture>
+  <source srcset="/images/blog/lyft-bikes/intercepted-handshake-white.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/lyft-bikes/intercepted-handshake-black.png" alt="Intercepted SSL handshake via Charles" class="img-inset">
+</picture>
 
 This means your phone is now encrypting `lyft.com` traffic with Charles's public key, so Charles can decrypt it, save it, then re-encrypt it with the *real* `lyft.com` cert and forward it along.
 
-![Screenshot 2026-01-01 at 2.09.30 PM.png](/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.09.30_PM.png)
+<picture>
+  <source srcset="/images/blog/lyft-bikes/reading-encrypted-traffic-white.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/lyft-bikes/reading-encrypted-traffic-black.png" alt="Reading decrypted traffic in Charles" class="img-inset">
+</picture>
 
 But there's a catch – your phone will reject a certificate unless it's been signed by a Certificate Authority, endorsing it actually belongs to `lyft.com`. These CAs are third-party organizations acting like notaries that issue "root certificates", and your phone comes with many trusted CA root certificates pre-installed. So Charles just asks you to install one more root certificate – the Charles Root Certificate, used to sign all the other certificates Charles creates. And just like that, my phone trusts Charles, and I can see SSL traffic.
 
@@ -276,7 +285,7 @@ Panic? Panic.
 
 ## Saving My Ass
 
-I think I spent ~two and a half minutes hyperventilating before I decided to start using my brain. How do hackers avoid getting arrested? Responsible disclosure. Companies will give bounties to people who report vulnerabilities, so hackers can keep hacking legally, and companies get to fix issues. Win–win! And maybe, just maybe, I could use this to avoid getting arrested. Win-win-win!
+I think I spent ~two and a half minutes hyperventilating before I decided to start using my brain. How do hackers avoid getting arrested? Responsible disclosure. Companies will give bounties to people who report vulnerabilities, so hackers can keep hacking legally, and companies get to fix issues. Win-win! And maybe, just maybe, I could use this to avoid getting arrested. Win-win-win!
 
 So I found [HackerOne](), and immediately a problem: [Lyft's vulnerability disclosure guidelines]() state brute-force approaches aren't eligible. In reality, my approach wasn't bypassing anything at all – I was still unlocking a bike and paying like normal. No bugs to be reported. Although... the second bike! Definitely not normal behavior, and I wasn't getting charged for it. Let's hope it's enough.
 
@@ -304,13 +313,14 @@ An attacker could unlock more than one bike without having to go through the pay
 
 (Yes I actually said "trivial" because I didn't want to share my code.)
 
-And now we wait. Except by sheer coincidence[^6], my summer roommate was _also_ working at Lyft, and found the thread discussing my vulnerability report. Apparently some claimed it was ineligible, but one very nice man was arguing it was legit. Wondering whether I'd get arrested had suddenly turned into wondering if I'd get paid instead. What a world we live in.
+And now we wait. Except by sheer coincidence[^6], my summer roommate was _also_ working at Lyft, and found the thread discussing my vulnerability report. Apparently some claimed it was ineligible, but one very nice man was arguing it was legit. Wondering whether I'd get arrested had suddenly turned into hoping I'd get paid instead. What a world we live in.
 
-In the end, I got a nice little $250 bounty, with an additional $250 bonus for a "good report". I then did the only thing I could imagine doing with $500 as a student and threw a stocked-up little house party...
+In the end, I got a nice little $250 bounty, with an additional $250 bonus for a "good report". I then did the only thing I could imagine doing with $500 as a student and threw a well-stocked little house party...
 
 ...and, naturally, invited all the Lyft interns.
 
-# Technical Summary
+<details id="technical-summary" class="details-block">
+<summary>Technical summary</summary>
 
 Goal: Remotely unlock a Lyft bike.
 
@@ -323,17 +333,31 @@ Steps:
 
 I used Charles Proxy to capture outgoing requests from the Lyft app on my iPhone.
 
-![Screenshot 2026-01-01 at 2.18.19 PM.png](/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.18.19_PM.png)
+<picture>
+  <source srcset="/images/blog/lyft-bikes/charles-proxy-routing-white.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/lyft-bikes/charles-proxy-routing-black.png" alt="Normal SSL handshake" class="img-inset">
+</picture>
 
 Charles supports `SSL Proxying`, which injects its own ephemeral certificates during SSL handshake, making sure requests from both sides are being signed with keys it controls.
+<picture>
+  <source srcset="/images/blog/lyft-bikes/normal-handshake-white.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/lyft-bikes/normal-handshake-black.png" alt="Reading decrypted traffic in Charles" class="img-inset">
+</picture>
 
-![Screenshot 2026-01-01 at 2.09.23 PM.png](/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.09.23_PM.png)
+<picture>
+  <source srcset="/images/blog/lyft-bikes/intercepted-handshake-white.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/lyft-bikes/intercepted-handshake-black.png" alt="Intercepted SSL handshake via Charles" class="img-inset">
+</picture>
 
 This allows us to decrypt, read, and re-encrypt traffic in transit.
 
-![Screenshot 2026-01-01 at 2.09.30 PM.png](/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.09.30_PM.png)
+<picture>
+  <source srcset="/images/blog/lyft-bikes/reading-encrypted-traffic-white.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/lyft-bikes/reading-encrypted-traffic-black.png" alt="Reading decrypted traffic in Charles" class="img-inset">
+</picture>
 
 The ephemeral certificates are signed by a Charles Certificate Authority, which needs to be installed on your phone so Charles's certificates are not rejected. SSL traffic content is then viewable.
+
 
 ![api-routes.png](/images/blog/lyft-bikes/api-routes.png)
 
@@ -384,7 +408,7 @@ requests.post(url, headers=headers, json=data)
 
 ## Brute-forcing Bike ID
 
-Bike IDs are only accessible through the physical bikes (not counting eBikes, which were out of scope), to unlock one remotely we need to brute force it. Five digit IDs, but in practice only the `10000` to `20000` range is used, so 10,000 IDs to try.
+Bike IDs are only accessible through the physical bikes (not counting eBikes, which were out of scope), to unlock one remotely, we need to brute force it. Five-digit IDs, but in practice only the `10000` to `20000` range is used, so 10,000 IDs to try.
 
 A naive implementation takes ~3 hours:
 ```python
@@ -416,7 +440,9 @@ async def main():
 asyncio.run(main())
 ```
 
-Et voilá.
+Et voilà.
+
+</details>
 
 
 [^1]: Simplification.
