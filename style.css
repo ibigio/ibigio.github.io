@@ -517,8 +517,8 @@ blockquote p {
 }
 
 details.details-block {
-  border: 1px solid var(--muted);
-  border-radius: 8px;
+  background: rgba(128, 128, 128, 0.06);
+  border-radius: 6px;
   padding: 0.75rem 1rem;
   margin: 2rem 0;
 }
@@ -526,6 +526,10 @@ details.details-block {
 details.details-block > summary {
   cursor: pointer;
   font-weight: 600;
+}
+
+details.details-block > summary::marker {
+  color: var(--muted);
 }
 
 details.details-block[open] > summary {
