@@ -2,9 +2,8 @@
 title: Reverse engineering Lyft bikes for fun (and profit)
 slug: lyft-bikes
 date: January 2026
+reading_time: 12 min read
 ---
-
-12 minute read
 
 One cold San Francisco summer morning in Haight-Ashbury, my commute down to Market was interrupted by the sight of a lucky duck taking the last Lyft bike – again.
 
@@ -45,7 +44,7 @@ My goal was to make sure nobody would take a bike while I was on-route to the st
 
 ...until the next day, when [Lyft acquired Ford GoBikes](https://www.lyft.com/blog/posts/lyft-to-acquire-us-bikeshare-leader) and the whole unlock mechanism changed. All hail Lyft.
 
-The new Lyft map also showed bikes at stations, but now you'd unlock a bike directly by scanning a QR code on it. Each bike also had 5-digit number you could use in case scanning didn't work. Maybe if I typed a bike's code into my app when I left, it would be unlocked (and hopefully still there) by the time I arrived? So I tried it.
+The new Lyft map also showed bikes at stations, but now you'd unlock a bike directly by scanning a QR code on it. Each bike also had a 5-digit number you could use in case scanning didn't work. Maybe if I typed a bike's code into my app when I left, it would be unlocked (and hopefully still there) by the time I arrived? So I tried it.
 
 `You are too far from this station.`
 
@@ -73,7 +72,7 @@ SSL ensures traffic from the Lyft app is encrypted using the `lyft.com` public k
   <img src="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.12.36_PM.png" alt="SSL Certificate" width="50%">
 </picture>
 
-In theory, this means my traffic can't be decrypted once it leaves my phone, even by me. However, Charles has a workaround: by enabling `SSL Proxying`, Charles will prevent the real `lyft.com` SLL certificate from making it back to your phone, and instead sends a new one it generates on the fly.
+In theory, this means my traffic can't be decrypted once it leaves my phone, even by me. However, Charles has a workaround: by enabling `SSL Proxying`, Charles will prevent the real `lyft.com` SSL certificate from making it back to your phone, and instead sends a new one it generates on the fly.
 
 ![Screenshot 2026-01-01 at 2.09.23 PM.png](/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.09.23_PM.png)
 
@@ -185,7 +184,7 @@ async def main():
 asyncio.run(main())
 ```
 
-I benchmarked this against [Postman's API](https://www.postman.com/) (meant for testing) and it ran in 15 seconds! That's 650 RPM. But, hm… is that too much for their servers? In April 2019 [there were about 9,000 trips per day](https://www.sfmta.com/blog/11000-bikes-bike-share-expand-citywide), so even if 80% of those all happened during rush hour (8-10am, 5-7pm) that's still only 30 RPM at its _peak_. I'd be single-handedly 20x-ing their peak traffic on this endpoint. To be fair, (Google informed me,) 650 RPM is not _that_ crazy for most servers. But a sudden spike like that might still look to Lyft like a [Denial-of-Service attack]()...
+I benchmarked this against [Postman's API](https://www.postman.com/) (meant for testing) and it ran in 15 seconds! That's ~650 RPS. But, hm… is that too much for their servers? In April 2019 [there were about 9,000 trips per day](https://www.sfmta.com/blog/11000-bikes-bike-share-expand-citywide), so even if 80% of those all happened during rush hour (8-10am, 5-7pm) that's still a whopping 0.5 RPS at its _peak_. I'd be single-handedly 1,300x-ing their peak traffic on this endpoint. To be fair, (Google informed me,) 650 RPS is not _that_ crazy for most servers. But a sudden spike like that might still look to Lyft like a [Denial-of-Service attack]()...
 
 <div class="form-field">
 <div class="form-label">To: security@lyft.com</div>
@@ -202,7 +201,7 @@ Aaaand sent. Ok now let's run it on all the IDs.
 
 ## The Test
 
-I'm about to run `python unlock_script.py` when a thought occurs to me: Is there _any_ chance, however slim, that I'm about to unlock every single Lyft Bike in and around the Bay Area? The geofence should prevent that, _in theory_. Only the station at my selected coordinates should respond. But what if it fails? What if– eh screw it, let's live a little [^5]
+I'm about to run `python unlock_script.py` when a thought occurs to me: Is there _any_ chance, however slim, that I'm about to unlock every single Lyft Bike in and around the Bay Area? The geofence should prevent that, _in theory_. Only the station at my selected coordinates should respond. But what if it fails? What if– eh screw it, let's live a little. [^5]
 
 `Enter ⏎`
 
@@ -218,7 +217,7 @@ Then another. They start to trickle in, slowly at first, then suddenly flood my 
 Bike 12539 unlocked
 ```
 
-[aggressive celebration success meme]
+![Jonah Hill screaming in excitement](/images/blog/lyft-bikes/jonah-hill-excited.gif)
 
 Fuuuuuuck yesss! Oh my fucking god it worked! It actually wor–
 
@@ -233,11 +232,11 @@ And there they were. Resting peacefully in their docks, but secretly not actuall
 
 ## The Good Days
 
-And boy did I enjoy it. Every morning I'd wake up, get ready fork work, run my script, glace at the unlocked ID (sometimes two), leasurely stroll to the station, (re-lock the second bike if necessary), and be on my merry way.
+And boy did I enjoy it. Every morning I'd wake up, get ready for work, run my script, glance at the unlocked ID (sometimes two), leisurely stroll to the station, (re-lock the second bike if necessary), and be on my merry way.
 
 I mostly kept this to myself, and a few trusted people including my parents, who were happy for me but nervous that I was now a criminal waiting to be arrested.
 
-But what fun, and what a pleasently happy ending to this adventure.
+But what fun, and what a pleasantly happy ending to this adventure.
 
 
 <div class="chat">
@@ -279,7 +278,7 @@ Panic? Panic.
 
 I think I spent ~two and a half minutes hyperventilating before I decided to start using my brain. How do hackers avoid getting arrested? Responsible disclosure. Companies will give bounties to people who report vulnerabilities, so hackers can keep hacking legally, and companies get to fix issues. Win–win! And maybe, just maybe, I could use this to avoid getting arrested. Win-win-win!
 
-So I found [HackerOne](), and immediately a problem: [Lyft's vulnerability disclosure guidelines]() state brute-force approaches aren't elligible. In reality, my approach wasn't bypassing anything at all – I was still unlocking a bike and paying like normal. No bugs to be reported. Although... the second bike! Definitely not normal behavior, and I wasn't getting charged for it. Let's hope it's enough.
+So I found [HackerOne](), and immediately a problem: [Lyft's vulnerability disclosure guidelines]() state brute-force approaches aren't eligible. In reality, my approach wasn't bypassing anything at all – I was still unlocking a bike and paying like normal. No bugs to be reported. Although... the second bike! Definitely not normal behavior, and I wasn't getting charged for it. Let's hope it's enough.
 
 
 <div class="form-field">
@@ -305,7 +304,7 @@ An attacker could unlock more than one bike without having to go through the pay
 
 (Yes I actually said "trivial" because I didn't want to share my code.)
 
-And now we wait. Except by sheer coincidence[^6], my summer roommate was _also_ working at Lyft, and found the thread discussing my vulnerability report. Apparently some claimed it was inelligible, but one very nice man was arguing it was legit. Wondering whether I'd get arrested had suddenly turned into wondering if I'd get paid instead. What a world we live in.
+And now we wait. Except by sheer coincidence[^6], my summer roommate was _also_ working at Lyft, and found the thread discussing my vulnerability report. Apparently some claimed it was ineligible, but one very nice man was arguing it was legit. Wondering whether I'd get arrested had suddenly turned into wondering if I'd get paid instead. What a world we live in.
 
 In the end, I got a nice little $250 bounty, with an additional $250 bonus for a "good report". I then did the only thing I could imagine doing with $500 as a student and threw a stocked-up little house party...
 
@@ -330,11 +329,11 @@ Charles supports `SSL Proxying`, which injects its own ephemeral certificates du
 
 ![Screenshot 2026-01-01 at 2.09.23 PM.png](/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.09.23_PM.png)
 
-This allows is to decrypt, read, and re-encrypt traffic in transit.
+This allows us to decrypt, read, and re-encrypt traffic in transit.
 
 ![Screenshot 2026-01-01 at 2.09.30 PM.png](/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.09.30_PM.png)
 
-The ephemeral certificates are signed by a Charles Certificate Authority, which needs to be installed on your phone so Charle's certificates are not rejected. SSL traffic content is then viewable.
+The ephemeral certificates are signed by a Charles Certificate Authority, which needs to be installed on your phone so Charles's certificates are not rejected. SSL traffic content is then viewable.
 
 ![api-routes.png](/images/blog/lyft-bikes/api-routes.png)
 
@@ -385,7 +384,7 @@ requests.post(url, headers=headers, json=data)
 
 ## Brute-forcing Bike ID
 
-Bike IDs are only accessible through the physical bikes (not counting eBikes, which were out of scope), we to unlock one remotely we need to brute force it. Five digit IDs, but in practice only the `10000` to `20000` range is used, so 10,000 IDs to try.
+Bike IDs are only accessible through the physical bikes (not counting eBikes, which were out of scope), to unlock one remotely we need to brute force it. Five digit IDs, but in practice only the `10000` to `20000` range is used, so 10,000 IDs to try.
 
 A naive implementation takes ~3 hours:
 ```python

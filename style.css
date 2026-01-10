@@ -342,12 +342,23 @@ li {
   height: 64px;
   z-index: 100;
   color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.home-icon img {
+.home-icon picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+a.home-icon img {
   width: 100%;
   height: 100%;
   display: block;
+  margin: 0;
+  max-width: none;
 }
 
 article header {
@@ -363,6 +374,12 @@ article header h1 {
 article header time {
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+.meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
 }
 
 .back {
