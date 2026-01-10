@@ -47,9 +47,9 @@ encryption,</li>
 <p>I learned a ton, so I'm sharing the journey in case you may too.</p>
 <p><a href="#technical-summary">Skip to technical summary →</a></p>
 <blockquote>
-<p><strong>Disclaimer:</strong> This writeup is meant for education
-purposes only. Vulnerabilities discussed were disclosed to and patched
-by Lyft in 2018.</p>
+<p><strong>Disclaimer:</strong> This writeup is meant for educational
+purposes only. Vulnerabilities discussed were disclosed to Lyft and
+patched in 2018.</p>
 </blockquote>
 <h2 id="table-of-contents">Table Of Contents</h2>
 <ul>
@@ -73,7 +73,7 @@ generate a temporary code for a specific station on your app, then punch
 it into that station which would release a random bike.</p>
 <img src="/images/blog/lyft-bikes/ford-gobikes.webp" alt="Ford GoBikes" style="border-radius: 8px">
 
-<p>My goal was to make sure nobody could take a bike while I was
+<p>My goal was to make sure nobody would take a bike while I was
 on-route to the station, so what if I just kept manually generating
 codes until I arrived? Maybe that might block others from doing so. So I
 tried it. No luck. Generating a code didn't block others, and that was
@@ -83,7 +83,7 @@ href="https://www.lyft.com/blog/posts/lyft-to-acquire-us-bikeshare-leader">Lyft
 acquired Ford GoBikes</a> and the whole unlock mechanism changed. All
 hail Lyft.</p>
 <p>The new Lyft map also showed bikes at stations, but now you'd unlock
-a bike directly by scanning a QR code on it. Each bike also had 4-digit
+a bike directly by scanning a QR code on it. Each bike also had 5-digit
 number you could use in case scanning didn't work. Maybe if I typed a
 bike's code into my app when I left, it would be unlocked (and hopefully
 still there) by the time I arrived? So I tried it.</p>
@@ -136,8 +136,8 @@ certificate</a>.</p>
   <img src="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.12.36_PM.png" alt="SSL Certificate" width="50%">
 </picture>
 
-<p>In theory, this means my traffic is perfectly un-snoopable, even by
-me. However, Charles has a workaround: by enabling
+<p>In theory, this means my traffic can't be decrypted once it leaves my
+phone, even by me. However, Charles has a workaround: by enabling
 <code>SSL Proxying</code>, Charles will prevent the real
 <code>lyft.com</code> SLL certificate from making it back to your phone,
 and instead sends a new one it generates on the fly.</p>
@@ -146,8 +146,8 @@ src="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.09.23_PM.png"
 alt="Screenshot 2026-01-01 at 2.09.23 PM.png" /></p>
 <p>This means your phone is now encrypting <code>lyft.com</code> traffic
 with Charles's public key, so Charles can decrypt it, save it, then
-re-encrypt with the <em>real</em> <code>lyft.com</code> cert and forward
-it along.</p>
+re-encrypt it with the <em>real</em> <code>lyft.com</code> cert and
+forward it along.</p>
 <p><img
 src="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.09.30_PM.png"
 alt="Screenshot 2026-01-01 at 2.09.30 PM.png" /></p>
@@ -161,7 +161,7 @@ Charles Root Certificate, used to sign all the other certificates
 Charles creates. And just like that, my phone trusts Charles, and I can
 see SSL traffic.</p>
 <h2 id="anatomy-of-a-lyft-request">Anatomy of a Lyft Request</h2>
-<p>So, let's unlock a bike shall we?</p>
+<p>So, let's unlock a bike from my phone, shall we?</p>
 <p><code>Vehicle not found.</code></p>
 <p>Right. Well, I used <code>12345</code> as the bike ID, so that's
 expected. Charles managed to capture some traffic anyway. Let's see if
@@ -175,33 +175,32 @@ contents.</p>
 
 HEADERS
 {
-  &quot;api-key&quot;: &quot;API_KEY_123&quot;,
-  &quot;authorization&quot;: &quot;API_TOKEN_123&quot;,
+  &quot;api-key&quot;: &quot;sk-XXXXX&quot;,
+  &quot;authorization&quot;: &quot;bearer-XXXXX&quot;,
   ...
 }
 
 DATA
 {
   &quot;userLocation&quot;: { &quot;lat&quot;: 37.7714859, &quot;lon&quot;: -122.4449036 },
-  &quot;qrCode&quot;: { &quot;memberId&quot;: &quot;mem123&quot;, &quot;qrCode&quot;: &quot;12345&quot; },
+  &quot;qrCode&quot;: { &quot;memberId&quot;: &quot;user-XXXXX&quot;, &quot;qrCode&quot;: &quot;12345&quot; },
   ...
 }</code></pre>
 <p>Yup, looks like it is. Look at these fields (<em>I omitted the
 unrelated, redacted the sensitive.</em>) There's some auth in the
-headers (<code>api-key</code>, <code>authorization</code>), the dummy
-bike <code>qrCode</code> I used (<code>12345</code>), a
-<code>memberId</code> which I assume identifies my account, and...
-<code>userLocation</code> coordinates! Bingo. Now I just need to replay
-that request with a python script, but set the <code>lat</code>,
-<code>lon</code> to be right next to the station (whose coordinates I
-got using google maps).</p>
+headers (<code>api-key</code>, <code>authorization</code>), the bike
+<code>qrCode</code> I used (<code>12345</code>), a <code>memberId</code>
+which I assume identifies my account, and... <code>userLocation</code>
+coordinates! Bingo. Now I just need to replay that request with a python
+script, but set the <code>lat</code>, <code>lon</code> to be right next
+to the station (whose coordinates I got using google maps).</p>
 <pre class="python"><code>import requests
 
 url=&quot;https://layer.bicyclesharing.net/mobile/v2/fgb/rent&quot;
 
 headers={
-  &quot;api-key&quot;: &quot;API_KEY_123&quot;,
-  &quot;authorization&quot;: &quot;API_TOKEN_123&quot;,
+  &quot;api-key&quot;: &quot;sk-XXXXX&quot;,
+  &quot;authorization&quot;: &quot;bearer-XXXXX&quot;,
 }
 
 station_coords = { &quot;lat&quot;: 37.7730627, &quot;lon&quot;: -122.4390777 }    # from maps
@@ -209,7 +208,7 @@ bike_id = &quot;12345&quot;                                              # dummy
 
 data={
   &quot;userLocation&quot;: station_coords,
-  &quot;qrCode&quot;: { &quot;memberId&quot;: &quot;mem123&quot;, &quot;qrCode&quot;:  bike_id},
+  &quot;qrCode&quot;: { &quot;memberId&quot;: &quot;user-XXXXX&quot;, &quot;qrCode&quot;:  bike_id},
 }
 
 requests.post(url, headers=headers, json=data)</code></pre>
@@ -221,7 +220,7 @@ its ID, entered it into my script, hit run, and holy shit it worked. The
 bike unlocked. I re-locked it, ran back to my apartment, hit run again,
 ran back, and there she was. Unlocked, and inconspicuously so. Nobody
 would think to take it… but me.</p>
-<p>We’re in business.</p>
+<p>We were in business.</p>
 <h2 id="i-promise-its-not-a-denial-of-service-attack">I Promise it’s not
 a Denial of Service Attack</h2>
 <p>Except… the bike IDs are only printed on the bikes. How would I know
@@ -238,7 +237,7 @@ iterations is not <em>that</em> many for python!</p>
 <p>This runs in less than a second:</p>
 <pre class="python"><code>for i in range(10_000, 20_000):
     print(i)</code></pre>
-<p>This, however, takes a second <em>per request</em>. So… ~three hours
+<p>This, however, takes ~a second <em>per request</em>. So… ~three hours
 for 10,000 requests.</p>
 <pre class="python"><code>def payload(i):
     return {
@@ -253,9 +252,9 @@ for i in range(10_000, 20_000):
     send_one(i)</code></pre>
 <p>But we don’t have to wait for each request to come back – we can run
 them in parallel. After trying <code>multiprocessing</code> and
-<code>threading</code>, I massaged a stack overflow code snippet using
-<code>aiohttp</code> to start a bunch of requests without blocking on a
-response. Here’s a simplified version.<a href="#fn4"
+<code>threading</code>, I massaged a stack overflow code snippet I found
+using <code>aiohttp</code> to start a bunch of requests without blocking
+on a response. Here’s a cleaned-up version.<a href="#fn4"
 class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a></p>
 <pre class="python"><code>import asyncio, aiohttp
 
@@ -270,57 +269,146 @@ async def main():
 asyncio.run(main())</code></pre>
 <p>I benchmarked this against <a
 href="https://www.postman.com/">Postman’s API</a> (meant for testing)
-and it ran in 15 seconds! That’s 650 RPM. Hm… is that too much for their
-servers? In April of 2018 <a
+and it ran in 15 seconds! That’s 650 RPM. But, hm… is that too much for
+their servers? In April of 2018 <a
 href="https://www.sfmta.com/media/14273/download?inline=">there were an
 average of 3,370 trips per weekday</a> So even if 80% of those all
-happened during rush hour (8-10am, 5-7pm) that’s still a whopping 11
-RPM. I’d be single-handedly 60x-ing their peak traffic.</p>
-<p>In practice, however, this hit a ton of limits and failures caused by
-going this hard. The solution was to cap at ~1000 connections, which
-brought execution to ~30 minutes</p>
-<p>But as days passed by, and I played with unlocking different bikes I
-noticed a pattern which slowly turned into a suspicion.
-<code>13576</code>. <code>17364</code>. <code>18921</code>.
-<code>13224</code>. <code>16618</code>… do you see it? All IDs seemed to
-sit roughly between <code>10000</code> and <code>20000</code>– that’s
-just 10,000! A whole order of magnitude less.</p>
-<p>So for days I checked every bike I passed. Wait, are these
-<em>all</em> between <code>10,000</code> and <code>20,000</code>?</p>
-<ul>
-<li>this is how tracked united healthcare murderer on lyft bikes</li>
-<li>putting camera on station?</li>
-<li>not that many ids...</li>
-<li>emails to companies</li>
-<li>fast async requests</li>
-<li>unlocked extra bike? huh</li>
-</ul>
+happened during rush hour (8-10am, 5-7pm) that’s still a whopping 11 RPM
+at its <em>peak</em>. I’d be single-handedly 60x-ing their peak traffic
+on this endpoint. To be fair, (Google informed me,) 650 RPM is not
+<em>that</em> crazy for most servers. But a sudden spike like that might
+still look to Lyft like a <a href="">Denial-of-Service attack</a>...</p>
+<pre><code>...which it&#39;s not. Let me know if this is an issue and I&#39;ll stop.
+
+I&#39;m just a student, please don&#39;t call the cops.
+
+Sincerely,
+Ilan</code></pre>
+<p>Aaaand sent – both to <code>security@lyft.com</code>, and the hosting
+company that powered the Lyft bikes API. Ok now let's run it on all the
+IDs.</p>
+<h2 id="the-test">The Test</h2>
+<p>I'm about to run <code>python unlock_script.py</code> when a thought
+occurs to me: Is there <em>any</em> chance, however slim, that I'm about
+to unlock every single Lyft Bike in and around the Bay Area? The
+geofence should prevent that, <em>in theory</em>. Only the station at my
+selected coordinates should respond. But what if it fails? What if– eh
+screw it, let's live a little <a href="#fn5" class="footnote-ref"
+id="fnref5" role="doc-noteref"><sup>5</sup></a></p>
+<p><code>Enter ⏎</code></p>
+<p>10,000 IDs fly through my screen.</p>
+<p>1000 not-so-milli seconds tick by. Then, I get my first</p>
+<p><code>You are too far from this station.</code></p>
+<p>Then another. They start to trickle in, slowly at first, then
+suddenly flood my terminal. Ok, that's a good sign. I'm not actively
+unlocking the whole city. Then, another second or so pass by,
+until...</p>
+<pre><code>Bike 12539 unlocked</code></pre>
+<p>[aggressive celebration success meme]</p>
+<p>Fuuuuuuck yesss! Oh my fucking god it worked! It actually wor–</p>
+<pre><code>Bike 17322 unlocked
+Done.</code></pre>
+<p>Wait, what? Um. Ok? Two bikes got unlocked? That's strange, my Lyft
+membership only allows me to unlock one bike at a time. But hey, a) I
+didn't unlock the whole city, and b) it worked, so what do I care. Let's
+go find my bikes.</p>
+<p>And there they were. Resting peacefully in their docks, but secretly
+not actually locked. If someone tried scanning it, they'd just see an
+error and try a different one. I had accomplished what I had set out to
+do.</p>
 <h2 id="the-good-days">The Good Days</h2>
-<ul>
-<li>bike always there, would re-lock second unlocked bike</li>
-<li>unlocked e-bike, saw someone take it</li>
-<li>eleanor tells me</li>
-<li>panic</li>
-</ul>
-<h2 id="man-on-the-inside">Man on the Inside</h2>
-<ul>
-<li>hacker 1 disclosure -&gt; not even eligible?</li>
-<li>non-brute force guidelines</li>
-<li>roommate telling me about discussion at lyft about me</li>
-<li>bounty</li>
-<li>lyft intern party</li>
-</ul>
+<p>Boy did I enjoy it. Every morning I'd wake up, get ready fork work,
+run my script, glace at the unlocked ID (sometimes two), leasurely
+stroll to the station, (re-lock the second bike if necessary), and be on
+my merry way.</p>
+<p>I mostly kept this to myself, and a few trusted people including my
+parents, who were happy for me but nervous that I was now a criminal
+waiting to be arrested.</p>
+<p>But what fun, and what a pleasently happy ending.</p>
+<pre><code>[imessage/messenger bubble]
+hey ilan! i know this is super out of the blue, but are you doing anything with the lyft bikes api?</code></pre>
+<p>Oh.</p>
+<p>Oh no.</p>
+<pre><code>Hey! um, potentially? Why?</code></pre>
+<pre><code>oh lmao. i&#39;m interning there and just saw an internal sev email about this and for some reason thought of you</code></pre>
+<p>Oh no.</p>
+<pre><code>Oh lol wait is sev &quot;severe&quot;?
+
+Should I stop?</code></pre>
+<pre><code>It just means there was an incident lol
+
+were you reverse engineering endpoints?</code></pre>
+<pre><code>Ok I&#39;m I don&#39;t want to get in trouble so</code></pre>
+<pre><code>loll</code></pre>
+<pre><code>Yeah, why?</code></pre>
+<pre><code>ok yeah that&#39;s what the email was about</code></pre>
+<pre><code>Hmmmmm should I be nervous?</code></pre>
+<pre><code>It says &quot;potentially DoS but probably just trying to reverse engineer&quot;
+
+lmao
+
+I think just stop doing it</code></pre>
+<p>Panic? Panic.</p>
+<h2 id="saving-my-ass">Saving My Ass</h2>
+<p>I think I spent ~two and a half minutes hyperventilating before I
+decided to start using my brain. How do hackers avoid getting arrested?
+Responsible disclosure. Companies will give bounties to people who
+report vulnerabilities, so hackers can keep hacking legally, and
+companies get to fix issues. Win–win! And maybe, just maybe, I could use
+this to avoid getting arrested. Win-win-win!</p>
+<p>So I found <a href="">HackerOne</a>, and immediately a problem: <a
+href="">Lyft's vulnerability disclosure guidelines</a> state brute-force
+approaches aren't elligible. In reality, my approach wasn't bypassing
+anything at all – I was still unlocking a bike and paying ike normal. No
+bugs to be reported. Although... the second bike! Definitely not normal
+behavior, and I wasn't getting charged for it. Let's hope it's
+enough.</p>
+<pre><code>[hacker one submission]</code></pre>
+<p>And now we wait. Except by sheer coincidence<a href="#fn6"
+class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>, my
+summer roommate was <em>also</em> working at Lyft, and found the thread
+discussing my vulnerability report. Apparently some claimed it was
+inelligible, but one very nice man was arguing it was legit. Wondering
+whether I'd get arrested had suddenly turned into wondering if I'd get
+paid instead. What a world we live in.</p>
+<p>In the end, I got a nice little $250 bounty, with an additional $250
+bonus for a "good report". I then did the only thing I could imagine
+doing with $500 as a student and threw a stocked-up little house
+party...</p>
+<p>...and, naturally, invited all the Lyft interns.</p>
 <h1 id="technical-summary">Technical Summary</h1>
-<p>Breakdown</p>
-<h1 id="notes">Notes</h1>
+<p>Goal: Remotely unlock a Lyft bike.</p>
 <ul>
-<li>make the -f+d in git diff formatting</li>
+<li>Capture outgoign Lyft app unlock request</li>
+<li>Replay, but override location to bypass geofencing</li>
+<li></li>
 </ul>
-<h1 id="dump">Dump</h1>
-<p>a sight I had been dreading: an empty Lyft Bike station. I had
-checked the app at 8:24am, there had been two bikes there. Yet when I
-arrived five minutes later, they were gone. Snagged before I
-arrived.</p>
+<p>I used Charles Proxy to capture outgoing requests from the Lyft app
+on my phone.</p>
+<p><img
+src="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.18.19_PM.png"
+alt="Screenshot 2026-01-01 at 2.18.19 PM.png" /></p>
+<p>Enabled <code>SSL Proxying</code> with Charles, which</p>
+<picture>
+  <source srcset="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.12.36_PM.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.12.36_PM.png" alt="SSL Certificate" width="50%">
+</picture>
+
+<p>In theory, this means my traffic can't be decrypted once it leaves my
+phone, even by me. However, Charles has a workaround: by enabling
+<code>SSL Proxying</code>, Charles will prevent the real
+<code>lyft.com</code> SLL certificate from making it back to your phone,
+and instead sends a new one it generates on the fly.</p>
+<p><img
+src="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.09.23_PM.png"
+alt="Screenshot 2026-01-01 at 2.09.23 PM.png" /></p>
+<p>This means your phone is now encrypting <code>lyft.com</code> traffic
+with Charles's public key, so Charles can decrypt it, save it, then
+re-encrypt it with the <em>real</em> <code>lyft.com</code> cert and
+forward it along.</p>
+<p><img
+src="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.09.30_PM.png"
+alt="Screenshot 2026-01-01 at 2.09.30 PM.png" /></p>
 <section id="footnotes" class="footnotes footnotes-end-of-document"
 role="doc-endnotes">
 <hr />
@@ -335,6 +423,13 @@ having to trek to re-lock one I accidentally unlocked across the city
 during testing.<a href="#fnref3" class="footnote-back"
 role="doc-backlink">↩︎</a></p></li>
 <li id="fn4"><p>semaphores<a href="#fnref4" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>I did, in fact, test this out with smaller ID ranges to
+convince myself I wasn't unlocking bikes at other stations. But I had
+never run the full-range test so I was still nervous (and it sounds more
+exciting this way.)<a href="#fnref5" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>or playa magic<a href="#fnref6" class="footnote-back"
 role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>

