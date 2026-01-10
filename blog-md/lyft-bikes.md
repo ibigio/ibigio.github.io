@@ -21,7 +21,7 @@ I learned a ton, so I'm sharing the journey in case you may too.
 
 [Skip to technical summary →](#technical-summary)
 
-> **Disclaimer:** This writeup is meant for educational purposes only. Vulnerabilities discussed were disclosed to Lyft and patched in 2018.
+> **Disclaimer:** This writeup is meant for educational purposes only. Vulnerabilities discussed were disclosed to Lyft and patched in 2019.
 > 
 
 ## Table Of Contents
@@ -31,12 +31,13 @@ I learned a ton, so I'm sharing the journey in case you may too.
 - [Spoofing SSL Root Certificate Authorities](#spoofing-ssl-root-certificate-authorities)
 - [Anatomy of a Lyft Request](#anatomy-of-a-lyft-request)
 - [I Promise it's not a Denial of Service Attack](#i-promise-its-not-a-denial-of-service-attack)
+- [The Test](#the-test)
 - [The Good Days](#the-good-days)
-- [Man on the Inside](#man-on-the-inside)
+- [Saving My Ass](#saving-my-ass)
 
 ## The Acquisition
 
-Back in 2018 Lyft Bikes (BayWheels) used to be [Ford GoBikes](https://automotive.lulop.com/en_EN/post/show/131501/ford-gobike-launching-in-bay-a.html), and used to be unlocked on a per-station basis. You'd generate a temporary code for a specific station on your app, then punch it into that station which would release a random bike.
+Back in 2019 Lyft Bikes (BayWheels) used to be [Ford GoBikes](https://automotive.lulop.com/en_EN/post/show/131501/ford-gobike-launching-in-bay-a.html), and used to be unlocked on a per-station basis. You'd generate a temporary code for a specific station on your app, then punch it into that station which would release a random bike.
 
 <img src="/images/blog/lyft-bikes/ford-gobikes.webp" alt="Ford GoBikes" style="border-radius: 8px">
 
@@ -137,7 +138,7 @@ requests.post(url, headers=headers, json=data)
 
 Sweet, now I just needed a real `bike_id` to test it on. It was very late at night[^2] but I was excited, so out I went with my PJs, flip flops, and laptop to squat by my target bike. I found its ID, entered it into my script, hit run, and holy shit it worked. The bike unlocked. I re-locked it, ran back to my apartment, hit run again, ran back, and there she was. Unlocked, and inconspicuously so. Nobody would think to take it… but me.
 
-We were in business.
+I was in business.
 
 ## I Promise it’s not a Denial of Service Attack
 
@@ -168,7 +169,7 @@ for i in range(10_000, 20_000):
     send_one(i)
 ```
 
-But we don’t have to wait for each request to come back – we can run them in parallel. After trying `multiprocessing` and `threading`, I massaged a stack overflow code snippet I found using `aiohttp` to start a bunch of requests without blocking on a response. Here’s a cleaned-up version.[^4]
+But we don’t have to wait for each request to come back – we can run them in parallel. After trying `multiprocessing` and `threading`, I massaged a stack overflow code snippet I found using `aiohttp` to start a bunch of requests without blocking on a response. Here’s a slightly[^4] simplified version.
 
 ```python
 import asyncio, aiohttp
@@ -184,18 +185,20 @@ async def main():
 asyncio.run(main())
 ```
 
-I benchmarked this against [Postman’s API](https://www.postman.com/) (meant for testing) and it ran in 15 seconds! That’s 650 RPM. But, hm… is that too much for their servers? In April of 2018 [there were an average of 3,370 trips per weekday](https://www.sfmta.com/media/14273/download?inline=) So even if 80% of those all happened during rush hour (8-10am, 5-7pm) that’s still a whopping 11 RPM at its _peak_. I’d be single-handedly 60x-ing their peak traffic on this endpoint. To be fair, (Google informed me,) 650 RPM is not _that_ crazy for most servers. But a sudden spike like that might still look to Lyft like a [Denial-of-Service attack]()...
+I benchmarked this against [Postman's API](https://www.postman.com/) (meant for testing) and it ran in 15 seconds! That's 650 RPM. But, hm… is that too much for their servers? In April 2019 [there were about 9,000 trips per day](https://www.sfmta.com/blog/11000-bikes-bike-share-expand-citywide), so even if 80% of those all happened during rush hour (8-10am, 5-7pm) that's still only 30 RPM at its _peak_. I'd be single-handedly 20x-ing their peak traffic on this endpoint. To be fair, (Google informed me,) 650 RPM is not _that_ crazy for most servers. But a sudden spike like that might still look to Lyft like a [Denial-of-Service attack]()...
 
-```
+<div class="form-field">
+<div class="form-label">To: security@lyft.com</div>
+
 ...which it's not. Let me know if this is an issue and I'll stop.
 
 I'm just a student, please don't call the cops.
 
-Sincerely,
+Sincerely,</br>
 Ilan
-```
+</div>
 
-Aaaand sent – both to `security@lyft.com`, and the hosting company that powered the Lyft bikes API. Ok now let's run it on all the IDs.
+Aaaand sent. Ok now let's run it on all the IDs.
 
 ## The Test
 
@@ -230,71 +233,45 @@ And there they were. Resting peacefully in their docks, but secretly not actuall
 
 ## The Good Days
 
-Boy did I enjoy it. Every morning I'd wake up, get ready fork work, run my script, glace at the unlocked ID (sometimes two), leasurely stroll to the station, (re-lock the second bike if necessary), and be on my merry way.
+And boy did I enjoy it. Every morning I'd wake up, get ready fork work, run my script, glace at the unlocked ID (sometimes two), leasurely stroll to the station, (re-lock the second bike if necessary), and be on my merry way.
 
 I mostly kept this to myself, and a few trusted people including my parents, who were happy for me but nervous that I was now a criminal waiting to be arrested.
 
-But what fun, and what a pleasently happy ending.
+But what fun, and what a pleasently happy ending to this adventure.
 
 
-```
-[imessage/messenger bubble]
-hey ilan! i know this is super out of the blue, but are you doing anything with the lyft bikes api?
-```
+<div class="chat">
+<div class="chat-time">Jun 21, 2019, 12:27 PM</div>
+<div class="msg them">hey ilan! i know this is super out of the blue, but are you doing anything with the lyft bikes api?</div>
+</div>
 
 Oh.
 
 Oh no.
 
-```
-Hey! um, potentially? Why?
-```
-
-```
-oh lmao. i'm interning there and just saw an internal sev email about this and for some reason thought of you
-```
+<div class="chat">
+<div class="msg me">Hey! um, potentially? Why?</div>
+<div class="msg them">oh lmao. i'm interning there and just saw an internal sev email about this and for some reason thought of you</div>
+</div>
 
 Oh no.
 
-```
-Oh lol wait is sev "severe"?
-
-Should I stop?
-```
-
-```
-It just means there was an incident lol
-
-were you reverse engineering endpoints?
-```
-
-```
-Ok I'm I don't want to get in trouble so
-```
-
-```
-loll
-```
-
-```
-Yeah, why?
-```
-
-```
-ok yeah that's what the email was about
-```
-
-```
-Hmmmmm should I be nervous?
-```
-
-```
-It says "potentially DoS but probably just trying to reverse engineer"
-
-lmao
-
-I think just stop doing it
-```
+<div class="chat">
+<div class="chat-time">12:54 PM</div>
+<div class="msg me">Oh lol wait is sev "severe"?</div>
+<div class="msg me">Should I stop?</div>
+<div class="msg them">It just means there was an incident lol</div>
+<div class="msg them">were you reverse engineering endpoints?</div>
+<div class="msg me">Ok I'm I don't want to get in trouble so</div>
+<div class="msg them">loll</div>
+<div class="msg me">Yeah, why?</div>
+<div class="msg them">ok yeah that's what the email was about</div>
+<div class="chat-time">12:58 PM</div>
+<div class="msg me">Hmmmmm should I be nervous?</div>
+<div class="msg them">It says "potentially DoS but probably just trying to reverse engineer"</div>
+<div class="msg them">lmao</div>
+<div class="msg them">I think just stop doing it</div>
+</div>
 
 Panic? Panic.
 
@@ -302,11 +279,31 @@ Panic? Panic.
 
 I think I spent ~two and a half minutes hyperventilating before I decided to start using my brain. How do hackers avoid getting arrested? Responsible disclosure. Companies will give bounties to people who report vulnerabilities, so hackers can keep hacking legally, and companies get to fix issues. Win–win! And maybe, just maybe, I could use this to avoid getting arrested. Win-win-win!
 
-So I found [HackerOne](), and immediately a problem: [Lyft's vulnerability disclosure guidelines]() state brute-force approaches aren't elligible. In reality, my approach wasn't bypassing anything at all – I was still unlocking a bike and paying ike normal. No bugs to be reported. Although... the second bike! Definitely not normal behavior, and I wasn't getting charged for it. Let's hope it's enough.
+So I found [HackerOne](), and immediately a problem: [Lyft's vulnerability disclosure guidelines]() state brute-force approaches aren't elligible. In reality, my approach wasn't bypassing anything at all – I was still unlocking a bike and paying like normal. No bugs to be reported. Although... the second bike! Definitely not normal behavior, and I wasn't getting charged for it. Let's hope it's enough.
 
-```
-[hacker one submission]
-```
+
+<div class="form-field">
+<div class="form-label">HackerOne Report</div>
+
+**Summary:**
+This vulnerability is specifically for the BayWheels bike sharing service. By brute-forcing the https://layer.bicyclesharing.net/mobile/v2/fgb/rent endpoint, an attacker is able to unlock more than one bicycle at a given station.
+
+**Proof of Concept:**
+Trivial.
+
+**Steps To Reproduce:**
+
+1. Locate relevant auth info (api-key and authorization code) from downloaded app (possibly using Charles proxy MitM).
+2. Discover rent endpoint (also using Charles proxy).
+3. Quickly send rent requests for all possible bike IDs.
+4. Retrieve bike.
+
+**Impact:**
+An attacker could unlock more than one bike without having to go through the paywall.
+
+</div>
+
+(Yes I actually said "trivial" because I didn't want to share my code.)
 
 And now we wait. Except by sheer coincidence[^6], my summer roommate was _also_ working at Lyft, and found the thread discussing my vulnerability report. Apparently some claimed it was inelligible, but one very nice man was arguing it was legit. Wondering whether I'd get arrested had suddenly turned into wondering if I'd get paid instead. What a world we live in.
 

@@ -494,3 +494,54 @@ hr {
 
 strong { font-weight: 600; }
 em { font-style: italic; }
+
+/* Form field / email style */
+.form-field {
+  border: 1px solid var(--muted);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  background: transparent;
+}
+
+.form-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+}
+
+/* Chat bubbles */
+.chat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 1.5rem 0;
+}
+
+.msg {
+  max-width: 80%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.msg.them {
+  align-self: flex-start;
+  background: rgba(128, 128, 128, 0.2);
+}
+
+.msg.me {
+  align-self: flex-end;
+  background: var(--link);
+  color: var(--bg);
+}
+
+.chat-time {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-align: center;
+  margin: 0.5rem 0;
+}

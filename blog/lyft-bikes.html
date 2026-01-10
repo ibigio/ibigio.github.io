@@ -50,7 +50,7 @@ encryption,</li>
 <blockquote>
 <p><strong>Disclaimer:</strong> This writeup is meant for educational
 purposes only. Vulnerabilities discussed were disclosed to Lyft and
-patched in 2018.</p>
+patched in 2019.</p>
 </blockquote>
 <h2 id="table-of-contents">Table Of Contents</h2>
 <ul>
@@ -63,11 +63,12 @@ Root Certificate Authorities</a></li>
 Request</a></li>
 <li><a href="#i-promise-its-not-a-denial-of-service-attack">I Promise
 it's not a Denial of Service Attack</a></li>
+<li><a href="#the-test">The Test</a></li>
 <li><a href="#the-good-days">The Good Days</a></li>
-<li><a href="#man-on-the-inside">Man on the Inside</a></li>
+<li><a href="#saving-my-ass">Saving My Ass</a></li>
 </ul>
 <h2 id="the-acquisition">The Acquisition</h2>
-<p>Back in 2018 Lyft Bikes (BayWheels) used to be <a
+<p>Back in 2019 Lyft Bikes (BayWheels) used to be <a
 href="https://automotive.lulop.com/en_EN/post/show/131501/ford-gobike-launching-in-bay-a.html">Ford
 GoBikes</a>, and used to be unlocked on a per-station basis. You'd
 generate a temporary code for a specific station on your app, then punch
@@ -221,7 +222,7 @@ its ID, entered it into my script, hit run, and holy shit it worked. The
 bike unlocked. I re-locked it, ran back to my apartment, hit run again,
 ran back, and there she was. Unlocked, and inconspicuously so. Nobody
 would think to take it… but me.</p>
-<p>We were in business.</p>
+<p>I was in business.</p>
 <h2 id="i-promise-its-not-a-denial-of-service-attack">I Promise it’s not
 a Denial of Service Attack</h2>
 <p>Except… the bike IDs are only printed on the bikes. How would I know
@@ -255,8 +256,8 @@ for i in range(10_000, 20_000):
 them in parallel. After trying <code>multiprocessing</code> and
 <code>threading</code>, I massaged a stack overflow code snippet I found
 using <code>aiohttp</code> to start a bunch of requests without blocking
-on a response. Here’s a cleaned-up version.<a href="#fn4"
-class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a></p>
+on a response. Here’s a slightly<a href="#fn4" class="footnote-ref"
+id="fnref4" role="doc-noteref"><sup>4</sup></a> simplified version.</p>
 <pre class="python"><code>import asyncio, aiohttp
 
 async def send_one(session, i):                              # non-blocking
@@ -269,25 +270,25 @@ async def main():
 
 asyncio.run(main())</code></pre>
 <p>I benchmarked this against <a
-href="https://www.postman.com/">Postman’s API</a> (meant for testing)
-and it ran in 15 seconds! That’s 650 RPM. But, hm… is that too much for
-their servers? In April of 2018 <a
-href="https://www.sfmta.com/media/14273/download?inline=">there were an
-average of 3,370 trips per weekday</a> So even if 80% of those all
-happened during rush hour (8-10am, 5-7pm) that’s still a whopping 11 RPM
-at its <em>peak</em>. I’d be single-handedly 60x-ing their peak traffic
-on this endpoint. To be fair, (Google informed me,) 650 RPM is not
-<em>that</em> crazy for most servers. But a sudden spike like that might
-still look to Lyft like a <a href="">Denial-of-Service attack</a>...</p>
-<pre><code>...which it&#39;s not. Let me know if this is an issue and I&#39;ll stop.
+href="https://www.postman.com/">Postman's API</a> (meant for testing)
+and it ran in 15 seconds! That's 650 RPM. But, hm… is that too much for
+their servers? In April 2019 <a
+href="https://www.sfmta.com/blog/11000-bikes-bike-share-expand-citywide">there
+were about 9,000 trips per day</a>, so even if 80% of those all happened
+during rush hour (8-10am, 5-7pm) that's still only 30 RPM at its
+<em>peak</em>. I'd be single-handedly 20x-ing their peak traffic on this
+endpoint. To be fair, (Google informed me,) 650 RPM is not <em>that</em>
+crazy for most servers. But a sudden spike like that might still look to
+Lyft like a <a href="">Denial-of-Service attack</a>...</p>
+<div class="form-field">
+<div class="form-label">To: security@lyft.com</div>
 
-I&#39;m just a student, please don&#39;t call the cops.
+<p>...which it's not. Let me know if this is an issue and I'll stop.</p>
+<p>I'm just a student, please don't call the cops.</p>
+<p>Sincerely,</br> Ilan</p>
+</div>
 
-Sincerely,
-Ilan</code></pre>
-<p>Aaaand sent – both to <code>security@lyft.com</code>, and the hosting
-company that powered the Lyft bikes API. Ok now let's run it on all the
-IDs.</p>
+<p>Aaaand sent. Ok now let's run it on all the IDs.</p>
 <h2 id="the-test">The Test</h2>
 <p>I'm about to run <code>python unlock_script.py</code> when a thought
 occurs to me: Is there <em>any</em> chance, however slim, that I'm about
@@ -318,37 +319,45 @@ not actually locked. If someone tried scanning it, they'd just see an
 error and try a different one. I had accomplished what I had set out to
 do.</p>
 <h2 id="the-good-days">The Good Days</h2>
-<p>Boy did I enjoy it. Every morning I'd wake up, get ready fork work,
-run my script, glace at the unlocked ID (sometimes two), leasurely
+<p>And boy did I enjoy it. Every morning I'd wake up, get ready fork
+work, run my script, glace at the unlocked ID (sometimes two), leasurely
 stroll to the station, (re-lock the second bike if necessary), and be on
 my merry way.</p>
 <p>I mostly kept this to myself, and a few trusted people including my
 parents, who were happy for me but nervous that I was now a criminal
 waiting to be arrested.</p>
-<p>But what fun, and what a pleasently happy ending.</p>
-<pre><code>[imessage/messenger bubble]
-hey ilan! i know this is super out of the blue, but are you doing anything with the lyft bikes api?</code></pre>
+<p>But what fun, and what a pleasently happy ending to this
+adventure.</p>
+<div class="chat">
+<div class="chat-time">Jun 21, 2019, 12:27 PM</div>
+<div class="msg them">hey ilan! i know this is super out of the blue, but are you doing anything with the lyft bikes api?</div>
+</div>
+
 <p>Oh.</p>
 <p>Oh no.</p>
-<pre><code>Hey! um, potentially? Why?</code></pre>
-<pre><code>oh lmao. i&#39;m interning there and just saw an internal sev email about this and for some reason thought of you</code></pre>
+<div class="chat">
+<div class="msg me">Hey! um, potentially? Why?</div>
+<div class="msg them">oh lmao. i'm interning there and just saw an internal sev email about this and for some reason thought of you</div>
+</div>
+
 <p>Oh no.</p>
-<pre><code>Oh lol wait is sev &quot;severe&quot;?
+<div class="chat">
+<div class="chat-time">12:54 PM</div>
+<div class="msg me">Oh lol wait is sev "severe"?</div>
+<div class="msg me">Should I stop?</div>
+<div class="msg them">It just means there was an incident lol</div>
+<div class="msg them">were you reverse engineering endpoints?</div>
+<div class="msg me">Ok I'm I don't want to get in trouble so</div>
+<div class="msg them">loll</div>
+<div class="msg me">Yeah, why?</div>
+<div class="msg them">ok yeah that's what the email was about</div>
+<div class="chat-time">12:58 PM</div>
+<div class="msg me">Hmmmmm should I be nervous?</div>
+<div class="msg them">It says "potentially DoS but probably just trying to reverse engineer"</div>
+<div class="msg them">lmao</div>
+<div class="msg them">I think just stop doing it</div>
+</div>
 
-Should I stop?</code></pre>
-<pre><code>It just means there was an incident lol
-
-were you reverse engineering endpoints?</code></pre>
-<pre><code>Ok I&#39;m I don&#39;t want to get in trouble so</code></pre>
-<pre><code>loll</code></pre>
-<pre><code>Yeah, why?</code></pre>
-<pre><code>ok yeah that&#39;s what the email was about</code></pre>
-<pre><code>Hmmmmm should I be nervous?</code></pre>
-<pre><code>It says &quot;potentially DoS but probably just trying to reverse engineer&quot;
-
-lmao
-
-I think just stop doing it</code></pre>
 <p>Panic? Panic.</p>
 <h2 id="saving-my-ass">Saving My Ass</h2>
 <p>I think I spent ~two and a half minutes hyperventilating before I
@@ -360,11 +369,33 @@ this to avoid getting arrested. Win-win-win!</p>
 <p>So I found <a href="">HackerOne</a>, and immediately a problem: <a
 href="">Lyft's vulnerability disclosure guidelines</a> state brute-force
 approaches aren't elligible. In reality, my approach wasn't bypassing
-anything at all – I was still unlocking a bike and paying ike normal. No
-bugs to be reported. Although... the second bike! Definitely not normal
-behavior, and I wasn't getting charged for it. Let's hope it's
+anything at all – I was still unlocking a bike and paying like normal.
+No bugs to be reported. Although... the second bike! Definitely not
+normal behavior, and I wasn't getting charged for it. Let's hope it's
 enough.</p>
-<pre><code>[hacker one submission]</code></pre>
+<div class="form-field">
+<div class="form-label">HackerOne Report</div>
+
+<p><strong>Summary:</strong> This vulnerability is specifically for the
+BayWheels bike sharing service. By brute-forcing the <a
+href="https://layer.bicyclesharing.net/mobile/v2/fgb/rent">https://layer.bicyclesharing.net/mobile/v2/fgb/rent</a>
+endpoint, an attacker is able to unlock more than one bicycle at a given
+station.</p>
+<p><strong>Proof of Concept:</strong> Trivial.</p>
+<p><strong>Steps To Reproduce:</strong></p>
+<ol type="1">
+<li>Locate relevant auth info (api-key and authorization code) from
+downloaded app (possibly using Charles proxy MitM).</li>
+<li>Discover rent endpoint (also using Charles proxy).</li>
+<li>Quickly send rent requests for all possible bike IDs.</li>
+<li>Retrieve bike.</li>
+</ol>
+<p><strong>Impact:</strong> An attacker could unlock more than one bike
+without having to go through the paywall.</p>
+</div>
+
+<p>(Yes I actually said "trivial" because I didn't want to share my
+code.)</p>
 <p>And now we wait. Except by sheer coincidence<a href="#fn6"
 class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>, my
 summer roommate was <em>also</em> working at Lyft, and found the thread
