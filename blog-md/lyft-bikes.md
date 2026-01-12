@@ -351,7 +351,7 @@ Bike 12539 unlocked
 
 ![Jonah Hill screaming in excitement](/images/blog/lyft-bikes/jonah-hill-excited.gif)
 
-Fuuuuuuck yesss! Oh my fucking god it worked! It actually wor–
+Hellllll yeah! Oh my freaking god it worked! It actually wor–
 
 ```
 Bike 17322 unlocked
