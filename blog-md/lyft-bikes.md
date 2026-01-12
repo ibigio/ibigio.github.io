@@ -12,7 +12,7 @@ One cold San Francisco summer morning in Haight-Ashbury, my commute down to Mark
 I learned a ton, so I'm sharing the journey in case you may too.
 
 <details id="technical-summary" class="details-block">
-<summary>&nbsp;&nbsp;Technical summary (spoilers!)</summary>
+<summary>&nbsp;&nbsp;Technical summary, for the impatient (spoilers!)</summary>
 
 Goal: Remotely unlock a Lyft bike.
 
