@@ -529,7 +529,7 @@ details.details-block > summary {
 }
 
 details.details-block > summary::marker {
-  color: var(--muted);
+  color: var(--link);
 }
 
 details.details-block[open] > summary {

