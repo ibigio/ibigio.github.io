@@ -12,7 +12,7 @@ One cold San Francisco summer morning in Haight-Ashbury, my commute down to Mark
 I learned a ton, so I'm sharing the journey in case you may too.
 
 <details id="technical-summary" class="details-block">
-<summary>&nbsp;&nbsp;Technical summary, for the impatient (spoilers!)</summary>
+<summary>&nbsp;Technical summary, for the impatient (spoilers!)</summary>
 
 Goal: Remotely unlock a Lyft bike.
 
@@ -149,22 +149,24 @@ Et voilà.
 - [The Test](#the-test)
 - [The Good Days](#the-good-days)
 - [Saving My Ass](#saving-my-ass)
+- [Lessons Learned](#lessons-learned)
 
 ## The Acquisition
 
-Back in 2019 Lyft Bikes (BayWheels) used to be [Ford GoBikes](https://automotive.lulop.com/en_EN/post/show/131501/ford-gobike-launching-in-bay-a.html), and used to be unlocked on a per-station basis. You'd generate a temporary code for a specific station on your app, then punch it into that station which would release a random bike.
+Back in 2019 Lyft Bikes (BayWheels) used to be called [Ford GoBikes](https://automotive.lulop.com/en_EN/post/show/131501/ford-gobike-launching-in-bay-a.html), and used to be unlocked on a per-station basis. You'd generate a temporary code for a specific station on your app, then punch it into that station which would release a random bike.
 
 <img src="/images/blog/lyft-bikes/ford-gobikes.webp" alt="Ford GoBikes" style="border-radius: 8px">
 
 My goal was to make sure nobody would take a bike while I was on-route to the station, so what if I just kept manually generating codes until I arrived? Maybe that might block others from doing so. So I tried it. No luck. Generating a code didn't block others, and that was the only way to unlock bikes. Welp, nothing left to try...
 
-...until the next day, when [Lyft acquired Ford GoBikes](https://www.lyft.com/blog/posts/lyft-to-acquire-us-bikeshare-leader) and the whole unlock mechanism changed. All hail Lyft.
+...until the next day when Lyft, who had apparently just [acquired](https://www.lyft.com/blog/posts/lyft-to-acquire-us-bikeshare-leader) Ford GoBikes, [rebranded](https://www.lyft.com/blog/posts/introducing-bay-wheels-new-bikes-and-a-new-name?utm_source=chatgpt.com) it to BayWheels, and changed the whole unlock mechanism. All hail Lyft.
 
-The new Lyft map also showed bikes at stations, but now you'd unlock a bike directly by scanning a QR code on it. Each bike also had a 5-digit number you could use in case scanning didn't work. Maybe if I typed a bike's code into my app when I left, it would be unlocked (and hopefully still there) by the time I arrived? So I tried it.
+
+The new BayWheels map also showed bikes at stations, but now you'd unlock a bike directly by scanning a QR code on it. Each bike also had a 5-digit number you could use in case scanning didn't work. Great! This means maybe if I typed a bike's code into my app when I left my house, it would be unlocked (and hopefully still there) by the time I arrived? So I tried it.
 
 `You are too far from this station.`
 
-They had geofenced it. I spent a solid day Googling how to spoof GPS on iPhone but no luck. "I wonder what the app is actually sending to Lyft during an unlock." And so my journey of snooping encrypted iOS traffic began.
+They had geofenced it. I spent a solid day Googling how to spoof GPS on iPhone but no luck. I then wondered, fatefully, "what does the app actually send to Lyft during an unlock?", and my journey of capturing encrypted iOS traffic began.
 
 ## Intercepting iOS App Requests
 
@@ -181,7 +183,7 @@ First I had to forward my phone's traffic to Charles on my laptop. To do this I 
   <img src="/images/blog/lyft-bikes/charles-proxy-routing-black.png" alt="Normal SSL handshake" class="img-inset">
 </picture>
 
-Now my traffic was being forwarded to Charles Proxy and huzzah! I could see all requests coming out of my phone. But... I can't see the content? Oh, right. SSL encryption. The thing making sure we can trust the internet was getting in my way.
+Now my traffic was being forwarded to Charles Proxy and huzzah! I could see all requests coming out of my phone. But... I can't see the content? Oh, right. SSL[^8] encryption. The thing making sure we can trust the internet was getting in my way.
 
 ## Spoofing SSL Root Certificate Authorities
 
@@ -442,6 +444,9 @@ In the end, I got a nice little $250 bounty, with an additional $250 bonus for a
 
 ...and, naturally, invited all the Lyft interns.
 
+## Lessons Learned
+
+So what did I learn?
 
 [^1]: Simplification.
 
@@ -454,3 +459,7 @@ In the end, I got a nice little $250 bounty, with an additional $250 bonus for a
 [^5]: I did, in fact, test this out with smaller ID ranges to convince myself I wasn't unlocking bikes at other stations. But I had never run the full-range test so I was still nervous (and it sounds more exciting this way.)
 
 [^6]: or playa magic
+
+[^7]: The acquisition actually happened in 2018, but in 2019 it was rebranded 
+
+[^8]: TLS, SSL. Tomato potato.

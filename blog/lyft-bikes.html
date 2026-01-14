@@ -7,6 +7,7 @@
   <title>Reverse engineering Lyft bikes for fun (and
 profit) - Ilan Bigio</title>
   <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/vendor/atom-one-light.min.css" media="(prefers-color-scheme: light)">
   <link rel="stylesheet" href="/vendor/atom-one-dark.min.css" media="(prefers-color-scheme: dark)">
@@ -39,7 +40,7 @@ bikes across the city, triggering an internal incident, and somehow
 making a profit.</p>
 <p>I learned a ton, so I'm sharing the journey in case you may too.</p>
 <details id="technical-summary" class="details-block">
-<summary>&nbsp;&nbsp;Technical summary, for the impatient (spoilers!)</summary>
+<summary>&nbsp;Technical summary, for the impatient (spoilers!)</summary>
 
 <p>Goal: Remotely unlock a Lyft bike.</p>
 <p>Steps:</p>
@@ -174,9 +175,10 @@ it's not a Denial of Service Attack</a></li>
 <li><a href="#the-test">The Test</a></li>
 <li><a href="#the-good-days">The Good Days</a></li>
 <li><a href="#saving-my-ass">Saving My Ass</a></li>
+<li><a href="#lessons-learned">Lessons Learned</a></li>
 </ul>
 <h2 id="the-acquisition">The Acquisition</h2>
-<p>Back in 2019 Lyft Bikes (BayWheels) used to be <a
+<p>Back in 2019 Lyft Bikes (BayWheels) used to be called <a
 href="https://automotive.lulop.com/en_EN/post/show/131501/ford-gobike-launching-in-bay-a.html">Ford
 GoBikes</a>, and used to be unlocked on a per-station basis. You'd
 generate a temporary code for a specific station on your app, then punch
@@ -188,20 +190,23 @@ on-route to the station, so what if I just kept manually generating
 codes until I arrived? Maybe that might block others from doing so. So I
 tried it. No luck. Generating a code didn't block others, and that was
 the only way to unlock bikes. Welp, nothing left to try...</p>
-<p>...until the next day, when <a
-href="https://www.lyft.com/blog/posts/lyft-to-acquire-us-bikeshare-leader">Lyft
-acquired Ford GoBikes</a> and the whole unlock mechanism changed. All
-hail Lyft.</p>
-<p>The new Lyft map also showed bikes at stations, but now you'd unlock
-a bike directly by scanning a QR code on it. Each bike also had a
-5-digit number you could use in case scanning didn't work. Maybe if I
-typed a bike's code into my app when I left, it would be unlocked (and
-hopefully still there) by the time I arrived? So I tried it.</p>
+<p>...until the next day when Lyft, who had apparently just <a
+href="https://www.lyft.com/blog/posts/lyft-to-acquire-us-bikeshare-leader">acquired</a>
+Ford GoBikes, <a
+href="https://www.lyft.com/blog/posts/introducing-bay-wheels-new-bikes-and-a-new-name?utm_source=chatgpt.com">rebranded</a>
+it to BayWheels, and changed the whole unlock mechanism. All hail
+Lyft.</p>
+<p>The new BayWheels map also showed bikes at stations, but now you'd
+unlock a bike directly by scanning a QR code on it. Each bike also had a
+5-digit number you could use in case scanning didn't work. Great! This
+means maybe if I typed a bike's code into my app when I left my house,
+it would be unlocked (and hopefully still there) by the time I arrived?
+So I tried it.</p>
 <p><code>You are too far from this station.</code></p>
 <p>They had geofenced it. I spent a solid day Googling how to spoof GPS
-on iPhone but no luck. "I wonder what the app is actually sending to
-Lyft during an unlock." And so my journey of snooping encrypted iOS
-traffic began.</p>
+on iPhone but no luck. I then wondered, fatefully, "what does the app
+actually send to Lyft during an unlock?", and my journey of capturing
+encrypted iOS traffic began.</p>
 <h2 id="intercepting-ios-app-requests">Intercepting iOS App
 Requests</h2>
 <p>If you've used <a
@@ -232,14 +237,15 @@ running <code>ipconfig getifaddr en0</code></li>
 
 <p>Now my traffic was being forwarded to Charles Proxy and huzzah! I
 could see all requests coming out of my phone. But... I can't see the
-content? Oh, right. SSL encryption. The thing making sure we can trust
-the internet was getting in my way.</p>
+content? Oh, right. SSL<a href="#fn1" class="footnote-ref" id="fnref1"
+role="doc-noteref"><sup>1</sup></a> encryption. The thing making sure we
+can trust the internet was getting in my way.</p>
 <h2 id="spoofing-ssl-root-certificate-authorities">Spoofing SSL Root
 Certificate Authorities</h2>
 <p>SSL ensures traffic from the Lyft app is encrypted using the
 <code>lyft.com</code> public key, so only <code>lyft.com</code> can
-decrypt it<a href="#fn1" class="footnote-ref" id="fnref1"
-role="doc-noteref"><sup>1</sup></a>. All modern applications &amp;
+decrypt it<a href="#fn2" class="footnote-ref" id="fnref2"
+role="doc-noteref"><sup>2</sup></a>. All modern applications &amp;
 websites do this, and you can find the public key on a website's <a
 href="https://www.notion.so/Reverse-engineering-lyft-bikes-for-fun-and-profit-2db9f6a8122080049bd3e61b3238f00e?pvs=21">SSL
 certificate</a>.</p>
@@ -334,8 +340,8 @@ data={
 
 requests.post(url, headers=headers, json=data)</code></pre>
 <p>Sweet, now I just needed a real <code>bike_id</code> to test it on.
-It was very late at night<a href="#fn2" class="footnote-ref" id="fnref2"
-role="doc-noteref"><sup>2</sup></a> but I was excited, so out I went
+It was very late at night<a href="#fn3" class="footnote-ref" id="fnref3"
+role="doc-noteref"><sup>3</sup></a> but I was excited, so out I went
 with my PJs, flip flops, and laptop to squat by my target bike. I found
 its ID, entered it into my script, hit run, and holy shit it worked. The
 bike unlocked. I re-locked it, ran back to my apartment, hit run again,
@@ -348,8 +354,8 @@ a Denial of Service Attack</h2>
 what <code>bike_id</code> to use without going to the station? Maybe
 some other request Charles captured might have all the bike IDs at a
 station? Short answer – no. Two days of digging through captured traffic
-yielded no way to fetch bike IDs.<a href="#fn3" class="footnote-ref"
-id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
+yielded no way to fetch bike IDs.<a href="#fn4" class="footnote-ref"
+id="fnref4" role="doc-noteref"><sup>4</sup></a></p>
 <p>After considering many fruitless ideas, like hiding a little camera
 pointed at the bikes and using OCR, I thought… could I just try all IDs?
 Five digits, that’s 100,000 combinations… and thinking back, I had only
@@ -375,8 +381,8 @@ for i in range(10_000, 20_000):
 them in parallel. After trying <code>multiprocessing</code> and
 <code>threading</code>, I massaged a stack overflow code snippet I found
 using <code>aiohttp</code> to start a bunch of requests without blocking
-on a response. Here’s a slightly<a href="#fn4" class="footnote-ref"
-id="fnref4" role="doc-noteref"><sup>4</sup></a> simplified version.</p>
+on a response. Here’s a slightly<a href="#fn5" class="footnote-ref"
+id="fnref5" role="doc-noteref"><sup>5</sup></a> simplified version.</p>
 <pre class="python"><code>import asyncio, aiohttp
 
 async def send_one(session, i):                              # non-blocking
@@ -414,8 +420,8 @@ occurs to me: Is there <em>any</em> chance, however slim, that I'm about
 to unlock every single Lyft Bike in and around the Bay Area? The
 geofence should prevent that, <em>in theory</em>. Only the station at my
 selected coordinates should respond. But what if it fails? What if– eh
-screw it, let's live a little. <a href="#fn5" class="footnote-ref"
-id="fnref5" role="doc-noteref"><sup>5</sup></a></p>
+screw it, let's live a little. <a href="#fn6" class="footnote-ref"
+id="fnref6" role="doc-noteref"><sup>6</sup></a></p>
 <p><code>Enter ⏎</code></p>
 <p>10,000 IDs fly through my screen.</p>
 <p>1000 not-so-milli seconds tick by. Then, I get my first</p>
@@ -516,8 +522,8 @@ without having to go through the paywall.</p>
 
 <p>(Yes I actually said "trivial" because I didn't want to share my
 code.)</p>
-<p>And now we wait. Except by sheer coincidence<a href="#fn6"
-class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a>, my
+<p>And now we wait. Except by sheer coincidence<a href="#fn7"
+class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>, my
 summer roommate was <em>also</em> working at Lyft, and found the thread
 discussing my vulnerability report. Apparently some claimed it was
 ineligible, but one very nice man was arguing it was legit. Wondering
@@ -528,27 +534,31 @@ bonus for a "good report". I then did the only thing I could imagine
 doing with $500 as a student and threw a well-stocked little house
 party...</p>
 <p>...and, naturally, invited all the Lyft interns.</p>
+<h2 id="lessons-learned">Lessons Learned</h2>
+<p>So what did I learn?</p>
 <section id="footnotes" class="footnotes footnotes-end-of-document"
 role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1"><p>Simplification.<a href="#fnref1" class="footnote-back"
-role="doc-backlink">↩︎</a></p></li>
-<li id="fn2"><p>10:30pm in San Francisco.<a href="#fnref2"
+<li id="fn1"><p>TLS, SSL. Tomato potato.<a href="#fnref1"
 class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3"><p>Except for eBikes, which were very few at this point,
+<li id="fn2"><p>Simplification.<a href="#fnref2" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>10:30pm in San Francisco.<a href="#fnref3"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>Except for eBikes, which were very few at this point,
 and which flash very conspicuously when unlocked as I found out after
 having to trek to re-lock one I accidentally unlocked across the city
-during testing.<a href="#fnref3" class="footnote-back"
+during testing.<a href="#fnref4" class="footnote-back"
 role="doc-backlink">↩︎</a></p></li>
-<li id="fn4"><p>semaphores<a href="#fnref4" class="footnote-back"
+<li id="fn5"><p>semaphores<a href="#fnref5" class="footnote-back"
 role="doc-backlink">↩︎</a></p></li>
-<li id="fn5"><p>I did, in fact, test this out with smaller ID ranges to
+<li id="fn6"><p>I did, in fact, test this out with smaller ID ranges to
 convince myself I wasn't unlocking bikes at other stations. But I had
 never run the full-range test so I was still nervous (and it sounds more
-exciting this way.)<a href="#fnref5" class="footnote-back"
+exciting this way.)<a href="#fnref6" class="footnote-back"
 role="doc-backlink">↩︎</a></p></li>
-<li id="fn6"><p>or playa magic<a href="#fnref6" class="footnote-back"
+<li id="fn7"><p>or playa magic<a href="#fnref7" class="footnote-back"
 role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
