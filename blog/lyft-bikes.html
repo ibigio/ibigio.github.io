@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reverse engineering Lyft bikes for fun (and
-profit) - Ilan Bigio</title>
+profit?) - Ilan Bigio</title>
   <link rel="canonical" href="https://ilanbigio.com/blog/lyft-bikes.html">
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -24,12 +24,15 @@ profit) - Ilan Bigio</title>
         <a href="/" class="home-icon" aria-label="Home">
           <picture>
             <source srcset="/images/tree-outline-white.svg" media="(prefers-color-scheme: dark)">
-            <img src="/images/tree-outline-black.svg" alt="">
+            <img src="/images/tree.svg" alt="">
           </picture>
         </a>
       </div>
-      <h1>Reverse engineering Lyft bikes for fun (and profit)</h1>
-      <time datetime="January 2026">January 2026 · 12 min read</time>
+      <h1>Reverse engineering Lyft bikes for fun (and profit?)</h1>
+      <div class="meta-row">
+        <time datetime="January 2026">January 2026 · 12 min read</time>
+        <a href="https://ilanbigio.substack.com/subscribe" target="_blank">Subscribe →</a>
+      </div>
     </header>
 
 <p>One cold San Francisco summer morning in Haight-Ashbury, my commute
@@ -222,7 +225,7 @@ and a friendly <a
 href="https://www.charlesproxy.com/documentation/faqs/using-charles-from-an-iphone/">eight
 sentences</a> explained how to wire it up to my phone's traffic. It's
 basically a consensual <a
-href="https://www.notion.so/Reverse-engineering-lyft-bikes-for-fun-and-profit-2db9f6a8122080049bd3e61b3238f00e?pvs=21">man-in-the-middle
+href="https://en.wikipedia.org/wiki/Man-in-the-middle_attack">man-in-the-middle
 attack</a>.</p>
 <p>First I had to forward my phone's traffic to Charles on my laptop. To
 do this I enabled "HTTP Proxy" on my phone's wifi settings, and set the
@@ -249,7 +252,7 @@ Certificate Authorities</h2>
 decrypt it<a href="#fn2" class="footnote-ref" id="fnref2"
 role="doc-noteref"><sup>2</sup></a>. All modern applications &amp;
 websites do this, and you can find the public key on a website's <a
-href="https://www.notion.so/Reverse-engineering-lyft-bikes-for-fun-and-profit-2db9f6a8122080049bd3e61b3238f00e?pvs=21">SSL
+href="https://www.cloudflare.com/learning/ssl/what-is-an-ssl-certificate/">SSL
 certificate</a>.</p>
 <picture>
   <source srcset="/images/blog/lyft-bikes/ssl-cert-dark.png" media="(prefers-color-scheme: dark)">
@@ -565,9 +568,18 @@ role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
 
-    <footer>
-      <a href="/blog-md/lyft-bikes.md">View source</a>
-    </footer>
+    <div class="subscribe-callout" id="subscribe-callout">
+      <p>I may write something every few months or so. Who knows? (You might.)</p>
+      <form class="subscribe-form" onsubmit="window.open('https://ilanbigio.substack.com/subscribe?just_signed_up=true&skip_redirect_check=true&utm_medium=web&utm_source=embed&freeSignupEmail=' + encodeURIComponent(this.email.value), '_blank'); return false;">
+        <input type="email" name="email" placeholder="your@email.com" required autocomplete="off" data-1p-ignore data-lpignore="true" data-form-type="other">
+        <button type="submit" class="subscribe-btn">Subscribe</button>
+      </form>
+    </div>
+    <script>
+      const footnotes = document.querySelector('.footnotes');
+      const callout = document.getElementById('subscribe-callout');
+      if (footnotes && callout) footnotes.before(callout);
+    </script>
   </article>
 </body>
 </html>

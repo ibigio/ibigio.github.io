@@ -23,19 +23,31 @@
         <a href="/" class="home-icon" aria-label="Home">
           <picture>
             <source srcset="/images/tree-outline-white.svg" media="(prefers-color-scheme: dark)">
-            <img src="/images/tree-outline-black.svg" alt="">
+            <img src="/images/tree.svg" alt="">
           </picture>
         </a>
       </div>
       <h1>$title$</h1>
-      <time datetime="$date$">$date$$if(reading_time)$ · $reading_time$$endif$</time>
+      <div class="meta-row">
+        <time datetime="$date$">$date$$if(reading_time)$ · $reading_time$$endif$</time>
+        <a href="https://ilanbigio.substack.com/subscribe" target="_blank">Subscribe →</a>
+      </div>
     </header>
 
 $body$
 
-    <footer>
-      <a href="/blog-md/$slug$.md">View source</a>
-    </footer>
+    <div class="subscribe-callout" id="subscribe-callout">
+      <p>I may write something every few months or so. Who knows? (You might.)</p>
+      <form class="subscribe-form" onsubmit="window.open('https://ilanbigio.substack.com/subscribe?just_signed_up=true&skip_redirect_check=true&utm_medium=web&utm_source=embed&freeSignupEmail=' + encodeURIComponent(this.email.value), '_blank'); return false;">
+        <input type="email" name="email" placeholder="your@email.com" required autocomplete="off" data-1p-ignore data-lpignore="true" data-form-type="other">
+        <button type="submit" class="subscribe-btn">Subscribe</button>
+      </form>
+    </div>
+    <script>
+      const footnotes = document.querySelector('.footnotes');
+      const callout = document.getElementById('subscribe-callout');
+      if (footnotes && callout) footnotes.before(callout);
+    </script>
   </article>
 </body>
 </html>

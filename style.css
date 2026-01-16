@@ -376,6 +376,69 @@ article header time {
   font-size: 0.9rem;
 }
 
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.subscribe-callout {
+  margin: 2.5rem auto 0;
+  padding: 1rem 1.25rem;
+  background: rgba(128, 128, 128, 0.06);
+  border-radius: 6px;
+  width: fit-content;
+  text-align: center;
+}
+
+.subscribe-callout p {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.subscribe-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.subscribe-form input[type="email"] {
+  flex: 1;
+  min-width: 0;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.subscribe-form input[type="email"]::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.subscribe-form input[type="email"]:focus {
+  outline: none;
+  border-color: var(--link);
+}
+
+.subscribe-btn {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.85rem;
+  color: var(--bg);
+  background: var(--link);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.subscribe-btn:hover {
+  opacity: 0.85;
+}
+
 .meta {
   color: var(--muted);
   font-size: 0.9rem;

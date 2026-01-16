@@ -1,5 +1,5 @@
 ---
-title: Reverse engineering Lyft bikes for fun (and profit)
+title: Reverse engineering Lyft bikes for fun (and profit?)
 slug: lyft-bikes
 date: January 2026
 reading_time: 12 min read
@@ -170,7 +170,7 @@ They had geofenced it. I spent a solid day Googling how to spoof GPS on iPhone b
 
 ## Intercepting iOS App Requests
 
-If you've used [Chrome DevTools](https://developer.chrome.com/docs/devtools) (aka `Inspect Element`) you may have noticed a `Network` tab that lets you see the traffic between a website and its backend. Unfortunately it's not so simple for iOS. Some helpful Reddit posts led me to [Charles Proxy](https://www.charlesproxy.com/) which lets you see *all* traffic from your computer, and a friendly [eight sentences](https://www.charlesproxy.com/documentation/faqs/using-charles-from-an-iphone/) explained how to wire it up to my phone's traffic. It's basically a consensual [man-in-the-middle attack](https://www.notion.so/Reverse-engineering-lyft-bikes-for-fun-and-profit-2db9f6a8122080049bd3e61b3238f00e?pvs=21).
+If you've used [Chrome DevTools](https://developer.chrome.com/docs/devtools) (aka `Inspect Element`) you may have noticed a `Network` tab that lets you see the traffic between a website and its backend. Unfortunately it's not so simple for iOS. Some helpful Reddit posts led me to [Charles Proxy](https://www.charlesproxy.com/) which lets you see *all* traffic from your computer, and a friendly [eight sentences](https://www.charlesproxy.com/documentation/faqs/using-charles-from-an-iphone/) explained how to wire it up to my phone's traffic. It's basically a consensual [man-in-the-middle attack](https://en.wikipedia.org/wiki/Man-in-the-middle_attack).
 
 First I had to forward my phone's traffic to Charles on my laptop. To do this I enabled "HTTP Proxy" on my phone's wifi settings, and set the the `[ip]:[port]` to `192.168.0.7:8888`:
 
@@ -187,7 +187,7 @@ Now my traffic was being forwarded to Charles Proxy and huzzah! I could see all 
 
 ## Spoofing SSL Root Certificate Authorities
 
-SSL ensures traffic from the Lyft app is encrypted using the `lyft.com` public key, so only `lyft.com` can decrypt it[^1]. All modern applications & websites do this, and you can find the public key on a website's [SSL certificate](https://www.notion.so/Reverse-engineering-lyft-bikes-for-fun-and-profit-2db9f6a8122080049bd3e61b3238f00e?pvs=21).
+SSL ensures traffic from the Lyft app is encrypted using the `lyft.com` public key, so only `lyft.com` can decrypt it[^1]. All modern applications & websites do this, and you can find the public key on a website's [SSL certificate](https://www.cloudflare.com/learning/ssl/what-is-an-ssl-certificate/).
 
 
 <picture>
