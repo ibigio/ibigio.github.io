@@ -43,7 +43,8 @@ fleetingly. Then instead proceeded to spend the next month reverse
 engineering Lyft's private API, bypassing SSL encryption, chasing loose
 bikes across the city, triggering an internal incident, and somehow
 making a profit.</p>
-<p>I learned a ton, so I'm sharing the journey in case you may too.</p>
+<p>I learned a lot doing this, so I'm writing it up in case you might
+too.</p>
 <details id="technical-summary" class="details-block">
 <summary>&nbsp;Technical summary, for the impatient (spoilers!)</summary>
 
@@ -229,7 +230,7 @@ href="https://en.wikipedia.org/wiki/Man-in-the-middle_attack">man-in-the-middle
 attack</a>.</p>
 <p>First I had to forward my phone's traffic to Charles on my laptop. To
 do this I enabled "HTTP Proxy" on my phone's wifi settings, and set the
-the <code>[ip]:[port]</code> to <code>192.168.0.7:8888</code>:</p>
+<code>[ip]:[port]</code> to <code>192.168.0.7:8888</code>:</p>
 <ul>
 <li><code>192.168.0.7</code> is my laptop's local IP which I got by
 running <code>ipconfig getifaddr en0</code></li>
@@ -411,7 +412,9 @@ during rush hour (8-10am, 5-7pm) that's still a whopping 0.5 RPS at its
 <em>peak</em>. I'd be single-handedly 1,300x-ing their peak traffic on
 this endpoint. To be fair, (Google informed me,) 650 RPS is not
 <em>that</em> crazy for most servers. But a sudden spike like that might
-still look to Lyft like a <a href="">Denial-of-Service attack</a>...</p>
+still look to Lyft like a <a
+href="https://en.wikipedia.org/wiki/Denial-of-service_attack">Denial-of-Service
+attack</a>...</p>
 <div class="form-field">
 <div class="form-label">To: security@lyft.com</div>
 
@@ -596,7 +599,7 @@ during testing.<a href="#fnref5" class="footnote-back"
 role="doc-backlink">↩︎</a></p></li>
 <li id="fn6"><p>I also used <a
 href="https://en.wikipedia.org/wiki/Semaphore_(programming)">semaphores</a>
-to limit concurreny, but they make the code hareder to follow.<a
+to limit concurrency, but they make the code harder to follow.<a
 href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn7"><p>Maybe a slightly more professional version.<a
 href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>

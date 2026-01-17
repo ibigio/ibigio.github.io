@@ -9,7 +9,7 @@ One cold San Francisco summer morning in Haight-Ashbury, my commute down to Mark
 
 "I should really just wake up 15 minutes earlier", I thought, fleetingly. Then instead proceeded to spend the next month reverse engineering Lyft's private API, bypassing SSL encryption, chasing loose bikes across the city, triggering an internal incident, and somehow making a profit.
 
-I learned a ton, so I'm sharing the journey in case you may too.
+I learned a lot doing this, so I'm writing it up in case you might too.
 
 <details id="technical-summary" class="details-block">
 <summary>&nbsp;Technical summary, for the impatient (spoilers!)</summary>
@@ -172,7 +172,7 @@ They had geofenced it. I spent a solid day Googling how to spoof GPS on iPhone b
 
 If you've used [Chrome DevTools](https://developer.chrome.com/docs/devtools) (aka `Inspect Element`) you may have noticed a `Network` tab that lets you see the traffic between a website and its backend. Unfortunately it's not so simple for iOS. Some helpful Reddit posts led me to [Charles Proxy](https://www.charlesproxy.com/) which lets you see *all* traffic from your computer, and a friendly [eight sentences](https://www.charlesproxy.com/documentation/faqs/using-charles-from-an-iphone/) explained how to wire it up to my phone's traffic. It's basically a consensual [man-in-the-middle attack](https://en.wikipedia.org/wiki/Man-in-the-middle_attack).
 
-First I had to forward my phone's traffic to Charles on my laptop. To do this I enabled "HTTP Proxy" on my phone's wifi settings, and set the the `[ip]:[port]` to `192.168.0.7:8888`:
+First I had to forward my phone's traffic to Charles on my laptop. To do this I enabled "HTTP Proxy" on my phone's wifi settings, and set the `[ip]:[port]` to `192.168.0.7:8888`:
 
 - `192.168.0.7` is my laptop's local IP which I got by running `ipconfig getifaddr en0`
 - `8888` is the port Charles Proxy is running on
@@ -318,7 +318,7 @@ async def main():
 asyncio.run(main())
 ```
 
-I benchmarked this against [Postman's API](https://www.postman.com/) (meant for testing) and it ran in 15 seconds! That's ~650 RPS. But, hm… is that too much for their servers? In April 2019 [there were about 9,000 trips per day](https://www.sfmta.com/blog/11000-bikes-bike-share-expand-citywide), so even if 80% of those all happened during rush hour (8-10am, 5-7pm) that's still a whopping 0.5 RPS at its _peak_. I'd be single-handedly 1,300x-ing their peak traffic on this endpoint. To be fair, (Google informed me,) 650 RPS is not _that_ crazy for most servers. But a sudden spike like that might still look to Lyft like a [Denial-of-Service attack]()...
+I benchmarked this against [Postman's API](https://www.postman.com/) (meant for testing) and it ran in 15 seconds! That's ~650 RPS. But, hm… is that too much for their servers? In April 2019 [there were about 9,000 trips per day](https://www.sfmta.com/blog/11000-bikes-bike-share-expand-citywide), so even if 80% of those all happened during rush hour (8-10am, 5-7pm) that's still a whopping 0.5 RPS at its _peak_. I'd be single-handedly 1,300x-ing their peak traffic on this endpoint. To be fair, (Google informed me,) 650 RPS is not _that_ crazy for most servers. But a sudden spike like that might still look to Lyft like a [Denial-of-Service attack](https://en.wikipedia.org/wiki/Denial-of-service_attack)...
 
 <div class="form-field">
 <div class="form-label">To: security@lyft.com</div>
@@ -467,13 +467,11 @@ Happy hacking.
 
 [^3]: Except for eBikes, which were very few at this point, and which flash very conspicuously when unlocked as I found out after having to trek to re-lock one I accidentally unlocked across the city during testing.
 
-[^4]: I also used [semaphores](https://en.wikipedia.org/wiki/Semaphore_(programming)) to limit concurreny, but they make the code hareder to follow.
+[^4]: I also used [semaphores](https://en.wikipedia.org/wiki/Semaphore_(programming)) to limit concurrency, but they make the code harder to follow.
 
 [^5]: I did, in fact, test this out with smaller ID ranges to convince myself I wasn't unlocking bikes at other stations. But I had never run the full-range test so I was still nervous (and it sounds more exciting this way.)
 
 [^6]: Or cosmic fate.
-
-[^7]: The acquisition actually happened in 2018, but in 2019 it was rebranded 
 
 [^8]: TLS, SSL. Tomato, potato.
 
