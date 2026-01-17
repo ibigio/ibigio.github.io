@@ -148,7 +148,7 @@ Et voilà.
 - [I Promise it's not a Denial of Service Attack](#i-promise-its-not-a-denial-of-service-attack)
 - [The Test](#the-test)
 - [The Good Days](#the-good-days)
-- [Saving My Ass](#saving-my-ass)
+- [Covering My Ass](#covering-my-ass)
 - [Lessons Learned](#lessons-learned)
 
 ## The Acquisition
@@ -162,7 +162,7 @@ My goal was to make sure nobody would take a bike while I was on-route to the st
 ...until the next day when Lyft, who had apparently just [acquired](https://www.lyft.com/blog/posts/lyft-to-acquire-us-bikeshare-leader) Ford GoBikes, [rebranded](https://www.lyft.com/blog/posts/introducing-bay-wheels-new-bikes-and-a-new-name?utm_source=chatgpt.com) it to BayWheels, and changed the whole unlock mechanism. All hail Lyft.
 
 
-The new BayWheels map also showed bikes at stations, but now you'd unlock a bike directly by scanning a QR code on it. Each bike also had a 5-digit number you could use in case scanning didn't work. Great! This means maybe if I typed a bike's code into my app when I left my house, it would be unlocked (and hopefully still there) by the time I arrived? So I tried it.
+The new BayWheels map also showed bikes at stations, but now you'd unlock a bike directly by scanning a QR code on it. Each bike also had a 5-digit number you could use in case scanning didn't work. Cool! This means maybe if I typed a bike's code into my app when I left my house, it would be unlocked (and hopefully still there) by the time I arrived? So I tried it.
 
 `You are too far from this station.`
 
@@ -214,7 +214,7 @@ This means your phone is now encrypting `lyft.com` traffic with Charles's public
   <img src="/images/blog/lyft-bikes/reading-encrypted-traffic-black.png" alt="Reading decrypted traffic in Charles" class="img-inset">
 </picture>
 
-But there's a catch – your phone will reject a certificate unless it's been signed by a Certificate Authority, endorsing it actually belongs to `lyft.com`. These CAs are third-party organizations acting like notaries that issue "root certificates", and your phone comes with many trusted CA root certificates pre-installed. So Charles just asks you to install one more root certificate – the Charles Root Certificate, used to sign all the other certificates Charles creates. And just like that, my phone trusts Charles, and I can see SSL traffic.
+But there's a catch – if anyone between you and Lyft can do this (coffee shop, cell provider, etc.), how can we ever know the certificate is really Lyft's? Well, your phone will reject a certificate unless it's been signed by a Certificate Authority, endorsing it actually belongs to `lyft.com`. These CAs are third-party organizations acting like notaries that issue "root certificates", and your phone comes with many trusted CA root certificates pre-installed. So Charles just asks you to install one more root certificate – the Charles Root Certificate, used to sign all the other certificates Charles creates. And just like that, my phone trusts Charles, and I can see SSL traffic. [^9]
 
 ## Anatomy of a Lyft Request
 
@@ -331,7 +331,7 @@ Sincerely,</br>
 Ilan
 </div>
 
-Aaaand sent. Ok now let's run it on all the IDs.
+Aaaand sent[^10]. Ok now let's run it on all the IDs.
 
 ## The Test
 
@@ -341,7 +341,7 @@ I'm about to run `python unlock_script.py` when a thought occurs to me: Is there
 
 10,000 IDs fly through my screen.
 
-1000 not-so-milli seconds tick by. Then, I get my first
+1000 not-so-milli seconds tick by. Then, I get my first blessed
 
 `You are too far from this station.`
 
@@ -366,25 +366,25 @@ And there they were. Resting peacefully in their docks, but secretly not actuall
 
 ## The Good Days
 
-And boy did I enjoy it. Every morning I'd wake up, get ready for work, run my script, glance at the unlocked ID (sometimes two), leisurely stroll to the station, (re-lock the second bike if necessary), and be on my merry way.
+And boy was it nice. Every morning I'd wake up, get ready for work, run my script, glance at the unlocked ID (sometimes two), leisurely stroll to the station, (re-lock the second bike if necessary), and be on my merry way.
 
-I mostly kept this to myself, and a few trusted people including my parents, who were happy for me but nervous that I was now a criminal waiting to be arrested.
+I mostly kept this to myself, and a few trusted people including my parents, who were happy for me but nervous that I was now certainly a criminal waiting to be arrested.
 
 But what fun, and what a pleasantly happy ending to this adventure.
 
 
 <div class="chat">
 <div class="chat-time">Jun 21, 2019, 12:27 PM</div>
-<div class="msg them">hey ilan! i know this is super out of the blue, but are you doing anything with the lyft bikes api?</div>
+<div class="msg them">hey ilan! super random, but are you doing anything with the lyft bikes api?</div>
 </div>
 
-Oh.
+What.
 
 Oh no.
 
 <div class="chat">
 <div class="msg me">Hey! um, potentially? Why?</div>
-<div class="msg them">oh lmao. i'm interning there and just saw an internal sev email about this and for some reason thought of you</div>
+<div class="msg them">oh lmao. i'm interning here and just saw a sev email about this and for some reason thought of you</div>
 </div>
 
 Oh no.
@@ -408,11 +408,13 @@ Oh no.
 
 Panic? Panic.
 
-## Saving My Ass
+## Covering My Ass
 
-I think I spent ~two and a half minutes hyperventilating before I decided to start using my brain. How do hackers avoid getting arrested? Responsible disclosure. Companies will give bounties to people who report vulnerabilities, so hackers can keep hacking legally, and companies get to fix issues. Win-win! And maybe, just maybe, I could use this to avoid getting arrested. Win-win-win!
+I think I spent ~two and a half minutes hyperventilating before I decided to start using my brain. I hadn't _intended_ for this to cause an issue for Lyft: I had done the math, sanity checked with Google, and even let them know in advance. Even still, this could be interpreted maliciously and it'd be nice not to get arrested. So... what to do?
 
-So I found [HackerOne](), and immediately a problem: [Lyft's vulnerability disclosure guidelines]() state brute-force approaches aren't eligible. In reality, my approach wasn't bypassing anything at all – I was still unlocking a bike and paying like normal. No bugs to be reported. Although... the second bike! Definitely not normal behavior, and I wasn't getting charged for it. Let's hope it's enough.
+Well, how do hackers avoid getting arrested? Responsible disclosure! Companies will give bounties to people who report vulnerabilities, so hackers can keep hacking legally, and companies get to fix issues. Win-win! And maybe, just maybe, this might keep me out of jail. Win-win-win!
+
+So I found [HackerOne](https://www.hackerone.com/), and immediately a problem: [Lyft's vulnerability disclosure guidelines](https://www.lyft.com/security#:~:text=Denial%20of%20service-,Brute%2Dforce%20attacks,-Spamming) state brute-force approaches aren't eligible. In reality, my approach wasn't bypassing anything at all – I was still unlocking a bike and paying like normal. No bugs to be reported. Although... the second bike! Definitely not normal behavior, and I wasn't getting charged for it. Let's hope it's enough to show I come in peace.
 
 
 <div class="form-field">
@@ -436,11 +438,13 @@ An attacker could unlock more than one bike without having to go through the pay
 
 </div>
 
-(Yes I actually said "trivial" because I didn't want to share my code.)
+(Yes I'm embarrassed to say I did actually write "trivial" because I was nervous about sharing my code.)
 
 And now we wait. Except by sheer coincidence[^6], my summer roommate was _also_ working at Lyft, and found the thread discussing my vulnerability report. Apparently some claimed it was ineligible, but one very nice man was arguing it was legit. Wondering whether I'd get arrested had suddenly turned into hoping I'd get paid instead. What a world we live in.
 
-In the end, I got a nice little $250 bounty, with an additional $250 bonus for a "good report". I then did the only thing I could imagine doing with $500 as a student and threw a well-stocked little house party...
+**_Huge_ thank you to the security team at Lyft for working with me to resolve the issue!** Even despite my somewhat... unorthodox methods.
+
+In the end, I got a nice little $250 bounty, with an additional $250 bonus for a "good report". I then did the only thing I could imagine doing with $500 as a student and threw a completely stocked little house party...
 
 ...and, naturally, invited all the Lyft interns.
 
@@ -448,18 +452,31 @@ In the end, I got a nice little $250 bounty, with an additional $250 bonus for a
 
 So what did I learn?
 
-[^1]: Simplification.
+1. Even scary "physical" systems have digital interfaces you may recognize.
+1. There's few better ways to learn about a system than reverse engineering.
+1. Curiosity and determination are unreasonably effective, and seem to create luck.
+
+If you made it to the end, you might just enjoy this stuff. So I leave you with homework: **Go reverse engineer something.** Just, be nice about it.
+
+Happy hacking.
+
+
+[^1]: Slight simplification. In reality, SSL [asymmetric keys](https://en.wikipedia.org/wiki/Public-key_cryptography) are slow, so they're only used during the handshake to encrypt faster [symmetric keys](https://en.wikipedia.org/wiki/Symmetric-key_algorithm#:~:text=However%2C%20symmetric%2Dkey%20encryption%20algorithms%20are%20usually%20better%20for%20bulk%20encryption.), which then encrypt everything else.
 
 [^2]: 10:30pm in San Francisco.
 
 [^3]: Except for eBikes, which were very few at this point, and which flash very conspicuously when unlocked as I found out after having to trek to re-lock one I accidentally unlocked across the city during testing.
 
-[^4]: semaphores
+[^4]: I also used [semaphores](https://en.wikipedia.org/wiki/Semaphore_(programming)) to limit concurreny, but they make the code hareder to follow.
 
 [^5]: I did, in fact, test this out with smaller ID ranges to convince myself I wasn't unlocking bikes at other stations. But I had never run the full-range test so I was still nervous (and it sounds more exciting this way.)
 
-[^6]: or playa magic
+[^6]: Or cosmic fate.
 
 [^7]: The acquisition actually happened in 2018, but in 2019 it was rebranded 
 
-[^8]: TLS, SSL. Tomato potato.
+[^8]: TLS, SSL. Tomato, potato.
+
+[^9]: Even after this setup, I noticed some encrypted content was still not readable. Turns out some apps use Certificate Pinning, which means they come pre-installed with the server certificate they expect. So even if Charles intercepts the handshake, they will encrypt traffic with the pinned certificate. Pinned certs are a PAIN to get around. Glad I didn't have to.
+
+[^10]: Maybe a slightly more professional version.
