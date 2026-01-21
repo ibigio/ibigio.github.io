@@ -164,8 +164,10 @@ asyncio.run(main())</code></pre>
 
 <blockquote>
 <p><strong>Disclaimer:</strong> This writeup is meant for educational
-purposes only. Vulnerabilities discussed were disclosed to Lyft and
-patched in 2019.</p>
+purposes only. Vulnerabilities discussed were disclosed to Lyft in 2019,
+who promptly responded and patched them. Not long after, they also
+introduced bike reservations as an official feature, solving my original
+problem and making the below techniques unnecessary.</p>
 </blockquote>
 <h2 id="table-of-contents">Table Of Contents</h2>
 <ul>
@@ -180,7 +182,7 @@ Request</a></li>
 it's not a Denial of Service Attack</a></li>
 <li><a href="#the-test">The Test</a></li>
 <li><a href="#the-good-days">The Good Days</a></li>
-<li><a href="#covering-my-ass">Covering My Ass</a></li>
+<li><a href="#hacker-one">Hacker One</a></li>
 <li><a href="#lessons-learned">Lessons Learned</a></li>
 </ul>
 <h2 id="the-acquisition">The Acquisition</h2>
@@ -497,7 +499,7 @@ adventure.</p>
 </div>
 
 <p>Panic? Panic.</p>
-<h2 id="covering-my-ass">Covering My Ass</h2>
+<h2 id="hacker-one">Hacker One</h2>
 <p>I think I spent ~two and a half minutes hyperventilating before I
 decided to start using my brain. I hadn't <em>intended</em> for this to
 cause an issue for Lyft: I had done the math, sanity checked with
