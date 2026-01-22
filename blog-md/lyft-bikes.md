@@ -136,7 +136,7 @@ Et voilà.
 
 </details>
 
-> **Disclaimer:** This writeup is meant for educational purposes only. Vulnerabilities discussed were disclosed to Lyft in 2019, who promptly responded and patched them. Not long after, they also introduced bike reservations as an official feature, solving my original problem and making the below techniques unnecessary.
+> **Disclaimer:** This writeup is meant for educational purposes only. Vulnerabilities discussed were disclosed to Lyft in 2019, who promptly responded and patched them. Not long after, they also introduced bike reservations as an official feature, solving my original problem and rendering the below techniques obsolete.
 > 
 
 ## Table Of Contents
@@ -149,7 +149,7 @@ Et voilà.
 - [The Test](#the-test)
 - [The Good Days](#the-good-days)
 - [Hacker One](#hacker-one)
-- [Lessons Learned](#lessons-learned)
+- [Closing Thoughts](#closing-thoughts)
 
 ## The Acquisition
 
@@ -159,7 +159,7 @@ Back in 2019 Lyft Bikes (BayWheels) used to be called [Ford GoBikes](https://aut
 
 My goal was to make sure nobody would take a bike while I was on-route to the station, so what if I just kept manually generating codes until I arrived? Maybe that might block others from doing so. So I tried it. No luck. Generating a code didn't block others, and that was the only way to unlock bikes. Welp, nothing left to try...
 
-...until the next day when Lyft, who had apparently just [acquired](https://www.lyft.com/blog/posts/lyft-to-acquire-us-bikeshare-leader) Ford GoBikes, [rebranded](https://www.lyft.com/blog/posts/introducing-bay-wheels-new-bikes-and-a-new-name?utm_source=chatgpt.com) it to BayWheels, and changed the whole unlock mechanism. All hail Lyft.
+...until the next day when Lyft, who had apparently just [acquired](https://www.lyft.com/blog/posts/lyft-to-acquire-us-bikeshare-leader) Ford GoBikes, [rebranded](https://www.lyft.com/blog/posts/introducing-bay-wheels-new-bikes-and-a-new-name) it to BayWheels, and changed the whole unlock mechanism. All hail Lyft.
 
 
 The new BayWheels map also showed bikes at stations, but now you'd unlock a bike directly by scanning a QR code on it. Each bike also had a 5-digit number you could use in case scanning didn't work. Cool! This means maybe if I typed a bike's code into my app when I left my house, it would be unlocked (and hopefully still there) by the time I arrived? So I tried it.
@@ -440,17 +440,21 @@ An attacker could unlock more than one bike without having to go through the pay
 
 (Yes I'm embarrassed to say I did actually write "trivial" because I was nervous about sharing my code.)
 
-And now we wait. Except by sheer coincidence[^6], my summer roommate was _also_ working at Lyft, and found the thread discussing my vulnerability report. Apparently some claimed it was ineligible, but one very nice man was arguing it was legit. Wondering whether I'd get arrested had suddenly turned into hoping I'd get paid instead. What a world we live in.
+And now we wait. Except by sheer luck[^6], my summer roommate was _also_ working at Lyft (unrelated to the intern friend who messaged me), and found the thread discussing my vulnerability report. Even though Lyft could have labeled my submission ineligible due to my somewhat... unorthodox methods, their security team treated my newbie submission seriously, asked a couple follow-ups, and eventually decided to make an exception and award me a bounty of $250. They even threw in an extra $250 bonus for a "good report"!
 
-**_Huge_ thank you to the security team at Lyft for working with me to resolve the issue!** Even despite my somewhat... unorthodox methods.
+My goodness $500 is better than jail.
 
-In the end, I got a nice little $250 bounty, with an additional $250 bonus for a "good report". I then did the only thing I could imagine doing with $500 as a student and threw a completely stocked little house party...
+In the end I did what any (relieved, not arrested) student would do with a surprise $500 and threw an absolutely stocked little house party...
 
-...and, naturally, invited all the Lyft interns.
+...and, naturally, invited the Lyft interns.
 
-## Lessons Learned
+## Closing Thoughts
 
-So what did I learn?
+**Two-bike unlock:** While I never got confirmation, I believe the two-bike unlock issue was ultimately a race condition in the `rent` endpoint. Given the `layer.bicyclesharing.net` URL, I'm guessing Lyft inherited some legacy code during the Ford GoBikes which did not correctly handle multiple simultaneous requests from the same user. I expect they have since migrated these endpoints to their own first-party (likely more modern) backend.
+
+**Geofence bypass:** As far as I understand, there's no easy way to enforce a geofence server-side other than timing, consistency, etc. You sort of just have to trust whatever the phone tells you.
+
+**So what did I learn?**
 
 1. Even scary "physical" systems have digital interfaces you may recognize.
 1. There's few better ways to learn about a system than reverse engineering.

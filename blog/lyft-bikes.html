@@ -167,7 +167,7 @@ asyncio.run(main())</code></pre>
 purposes only. Vulnerabilities discussed were disclosed to Lyft in 2019,
 who promptly responded and patched them. Not long after, they also
 introduced bike reservations as an official feature, solving my original
-problem and making the below techniques unnecessary.</p>
+problem and rendering the below techniques obsolete.</p>
 </blockquote>
 <h2 id="table-of-contents">Table Of Contents</h2>
 <ul>
@@ -183,7 +183,7 @@ it's not a Denial of Service Attack</a></li>
 <li><a href="#the-test">The Test</a></li>
 <li><a href="#the-good-days">The Good Days</a></li>
 <li><a href="#hacker-one">Hacker One</a></li>
-<li><a href="#lessons-learned">Lessons Learned</a></li>
+<li><a href="#closing-thoughts">Closing Thoughts</a></li>
 </ul>
 <h2 id="the-acquisition">The Acquisition</h2>
 <p>Back in 2019 Lyft Bikes (BayWheels) used to be called <a
@@ -201,7 +201,7 @@ the only way to unlock bikes. Welp, nothing left to try...</p>
 <p>...until the next day when Lyft, who had apparently just <a
 href="https://www.lyft.com/blog/posts/lyft-to-acquire-us-bikeshare-leader">acquired</a>
 Ford GoBikes, <a
-href="https://www.lyft.com/blog/posts/introducing-bay-wheels-new-bikes-and-a-new-name?utm_source=chatgpt.com">rebranded</a>
+href="https://www.lyft.com/blog/posts/introducing-bay-wheels-new-bikes-and-a-new-name">rebranded</a>
 it to BayWheels, and changed the whole unlock mechanism. All hail
 Lyft.</p>
 <p>The new BayWheels map also showed bikes at stations, but now you'd
@@ -543,23 +543,34 @@ without having to go through the paywall.</p>
 
 <p>(Yes I'm embarrassed to say I did actually write "trivial" because I
 was nervous about sharing my code.)</p>
-<p>And now we wait. Except by sheer coincidence<a href="#fn9"
+<p>And now we wait. Except by sheer luck<a href="#fn9"
 class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a>, my
-summer roommate was <em>also</em> working at Lyft, and found the thread
-discussing my vulnerability report. Apparently some claimed it was
-ineligible, but one very nice man was arguing it was legit. Wondering
-whether I'd get arrested had suddenly turned into hoping I'd get paid
-instead. What a world we live in.</p>
-<p><strong><em>Huge</em> thank you to the security team at Lyft for
-working with me to resolve the issue!</strong> Even despite my
-somewhat... unorthodox methods.</p>
-<p>In the end, I got a nice little $250 bounty, with an additional $250
-bonus for a "good report". I then did the only thing I could imagine
-doing with $500 as a student and threw a completely stocked little house
+summer roommate was <em>also</em> working at Lyft (unrelated to the
+intern friend who messaged me), and found the thread discussing my
+vulnerability report. Even though Lyft could have labeled my submission
+ineligible due to my somewhat... unorthodox methods, their security team
+treated my newbie submission seriously, asked a couple follow-ups, and
+eventually decided to make an exception and award me a bounty of $250.
+They even threw in an extra $250 bonus for a "good report"!</p>
+<p>My goodness $500 is better than jail.</p>
+<p>In the end I did what any (relieved, not arrested) student would do
+with a surprise $500 and threw an absolutely stocked little house
 party...</p>
-<p>...and, naturally, invited all the Lyft interns.</p>
-<h2 id="lessons-learned">Lessons Learned</h2>
-<p>So what did I learn?</p>
+<p>...and, naturally, invited the Lyft interns.</p>
+<h2 id="closing-thoughts">Closing Thoughts</h2>
+<p><strong>Two-bike unlock:</strong> While I never got confirmation, I
+believe the two-bike unlock issue was ultimately a race condition in the
+<code>rent</code> endpoint. Given the
+<code>layer.bicyclesharing.net</code> URL, I'm guessing Lyft inherited
+some legacy code during the Ford GoBikes which did not correctly handle
+multiple simultaneous requests from the same user. I expect they have
+since migrated these endpoints to their own first-party (likely more
+modern) backend.</p>
+<p><strong>Geofence bypass:</strong> As far as I understand, there's no
+easy way to enforce a geofence server-side other than timing,
+consistency, etc. You sort of just have to trust whatever the phone
+tells you.</p>
+<p><strong>So what did I learn?</strong></p>
 <ol type="1">
 <li>Even scary "physical" systems have digital interfaces you may
 recognize.</li>
