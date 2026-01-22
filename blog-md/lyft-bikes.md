@@ -148,7 +148,7 @@ Et voilà.
 - [I Promise it's not a Denial of Service Attack](#i-promise-its-not-a-denial-of-service-attack)
 - [The Test](#the-test)
 - [The Good Days](#the-good-days)
-- [Covering My Ass](#covering-my-ass)
+- [Hacker One](#hacker-one)
 - [Closing Thoughts](#closing-thoughts)
 
 ## The Acquisition
@@ -408,7 +408,7 @@ Oh no.
 
 Panic? Panic.
 
-## Covering My Ass
+## Hacker One
 
 I think I spent ~two and a half minutes hyperventilating before I decided to start using my brain. I hadn't _intended_ for this to cause an issue for Lyft: I had done the math, sanity checked with Google, and even let them know in advance. Even still, this could be interpreted maliciously and it'd be nice not to get arrested. So... what to do?
 
