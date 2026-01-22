@@ -136,7 +136,7 @@ Et voilà.
 
 </details>
 
-> **Disclaimer:** This writeup is meant for educational purposes only. Vulnerabilities discussed were disclosed to Lyft in 2019, who promptly responded and patched them. Not long after, they also introduced bike reservations as an official feature, solving my original problem and rendering the below techniques obsolete.
+> **Disclaimer:** This writeup is meant for educational purposes only. Vulnerabilities discussed here were disclosed to Lyft in 2019, who promptly responded and patched them. Not long after, they also introduced bike reservations as an official feature, solving my original problem and rendering the below techniques obsolete.
 > 
 
 ## Table Of Contents
@@ -148,7 +148,7 @@ Et voilà.
 - [I Promise it's not a Denial of Service Attack](#i-promise-its-not-a-denial-of-service-attack)
 - [The Test](#the-test)
 - [The Good Days](#the-good-days)
-- [Hacker One](#hacker-one)
+- [Covering My Ass](#covering-my-ass)
 - [Closing Thoughts](#closing-thoughts)
 
 ## The Acquisition
@@ -408,7 +408,7 @@ Oh no.
 
 Panic? Panic.
 
-## Hacker One
+## Covering My Ass
 
 I think I spent ~two and a half minutes hyperventilating before I decided to start using my brain. I hadn't _intended_ for this to cause an issue for Lyft: I had done the math, sanity checked with Google, and even let them know in advance. Even still, this could be interpreted maliciously and it'd be nice not to get arrested. So... what to do?
 
@@ -454,7 +454,7 @@ In the end I did what any (relieved, not arrested) student would do with a surpr
 
 **Geofence bypass:** As far as I understand, there's no easy way to enforce a geofence server-side other than timing, consistency, etc. You sort of just have to trust whatever the phone tells you.
 
-**So what did I learn?**
+So what did I learn?
 
 1. Even scary "physical" systems have digital interfaces you may recognize.
 1. There's few better ways to learn about a system than reverse engineering.
