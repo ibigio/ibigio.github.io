@@ -464,6 +464,9 @@ If you made it to the end, you might just enjoy this stuff. So I leave you with 
 
 Happy hacking.
 
+<p style="text-align: right;"><a href="https://news.ycombinator.com/item?id=46721703" target="_blank">Hacker News Discussion →</a></p>
+
+<!-- [Hacker News Discussion →](https://news.ycombinator.com/item?id=46721703) -->
 
 [^1]: Slight simplification. In reality, SSL [asymmetric keys](https://en.wikipedia.org/wiki/Public-key_cryptography) are slow, so they're only used during the handshake to encrypt faster [symmetric keys](https://en.wikipedia.org/wiki/Symmetric-key_algorithm#:~:text=However%2C%20symmetric%2Dkey%20encryption%20algorithms%20are%20usually%20better%20for%20bulk%20encryption.), which then encrypt everything else.
 
