@@ -450,7 +450,7 @@ In the end I did what any (relieved, not arrested) student would do with a surpr
 
 ## Closing Thoughts
 
-**Two-bike unlock:** While I never got confirmation, I believe the two-bike unlock issue was ultimately a race condition in the `rent` endpoint. Given the `layer.bicyclesharing.net` URL, I'm guessing Lyft inherited some legacy code during the Ford GoBikes which did not correctly handle multiple simultaneous requests from the same user. I expect they have since migrated these endpoints to their own first-party (likely more modern) backend.
+**Two-bike unlock:** While I never got confirmation, I believe the two-bike unlock issue was ultimately a race condition in the `rent` endpoint. Given the `layer.bicyclesharing.net` URL, I'm guessing Lyft inherited some legacy code during the Ford GoBikes acquisition which did not correctly handle multiple simultaneous requests from the same user. I expect they have since migrated these endpoints to their own first-party (likely more modern) backend.
 
 **Geofence bypass:** As far as I understand, there's no easy way to enforce a geofence server-side other than timing, consistency, etc. You sort of just have to trust whatever the phone tells you.
 
