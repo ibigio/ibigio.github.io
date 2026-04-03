@@ -1,0 +1,7 @@
+    <item>
+      <title>$title$</title>
+      <link>https://ilanbigio.com/blog/$slug$</link>
+      <guid>https://ilanbigio.com/blog/$slug$</guid>
+      <pubDate>$pub-date$</pubDate>
+      <description>$description$</description>
+    </item>
