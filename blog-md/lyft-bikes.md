@@ -2,6 +2,8 @@
 title: Reverse engineering Lyft bikes for fun (and profit?)
 slug: lyft-bikes
 date: January 2026
+pub-date: Thu, 01 Jan 2026 00:00:00 +0000
+description: How I spent a month reverse engineering Lyft's private API, bypassing SSL encryption, chasing loose bikes across the city, triggering an internal incident, and somehow making a profit.
 reading_time: 12 min read
 ---
 
